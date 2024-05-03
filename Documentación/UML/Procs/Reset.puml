@@ -1,0 +1,20 @@
+@startuml Reset
+    Title Reset connection
+
+    Entity PC    as PC
+    Entity ESP32 as ESP32
+
+    hnote over ESP32,PC: Frame_id reset to 0
+
+    PC -> ESP32: (0) SetParams
+    ESP32 -> PC: (0) Ack (0)
+
+    ... Move into position ...
+    ESP32 -> PC: (1) Ready
+
+    PC -> ESP32: (1) Ready
+
+    hnote over ESP32, PC: Jump to recording procedure
+
+    
+@enduml

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="public/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="public/css/styles.css">
+    <title>Login</title>
+</head>
+<body class="vertical_flex_centered">
+    <nav class="nav_centered">
+        <div class="centered"><a href="inicio.html"><img class="main_logo" src="public/res/svg/dial.svg" alt="logo de la aplicación"></a></div>
+    </nav>
+
+    <div class="vertical_flex_centered" id="login_dialog">
+        <div class="horizontal_flex_centered">
+            <strong class="strong_medium">Inicia Sesión</strong>
+            <strong class="strong_green">Regístrate</strong>
+        </div>
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" placeholder="Correo electrónico" maxlength="50" minlength="5" disabled>
+
+        <label for="pass">Contraseña</label>
+        <input type="password" id="pass" placeholder="Contraseña" disabled>
+
+        <button type="submit" id="sign_in_button" disabled>Inicia sesión</button>
+
+        <p>¿Olvidaste tu contraseña?</p>
+        <p>O</p>
+        <div id="alt_login_methods">
+            <div class="horizontal_flex_centered">
+                <img class="icon_small" src="public/res/svg/google.svg" alt="ícono de Google">
+                <p>Continuar con Google</p>
+            </div>
+            <div class="horizontal_flex_centered">
+                <img class="icon_small" src="public/res/svg/facebook.svg" alt="ícono de Facebook">
+                <p>Continuar con Facebook</p>
+            </div>
+            <div class="horizontal_flex_centered">
+                <img class="icon_small" src="public/res/svg/apple.svg" alt="ícono de Apple">
+                <p>Continuar con Apple</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,491 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+* {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-size:  small;
+}
+
+:root {
+    --forced-side-padding: 12%;
+
+    --no-of-slides : 5;
+    --slides-width : 1441px;   
+    --slides-height: 354px;
+    --iteration-time: 1s;
+}
+
+header {
+    border:2px solid #ccede5;
+    background-color: #ccede5;
+    color: black;
+    margin: 0;
+    padding: 5px 10px 5px 20%;
+    min-height: 5%;
+
+}
+
+strong {
+    font-weight: 600;
+}
+
+header strong {
+    font-size: medium;
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 5em;
+    font-weight:bolder;
+    font-family: "Oswald", sans-serif;
+    text-align: center;
+    margin: 1rem;
+    text-transform: uppercase;
+    color: #0f3220
+}
+
+hr {
+    width: 90%;
+    margin: 5%;
+}
+
+.lighter_h1 {
+    color: #005b40
+}
+
+h2 {
+    font-size: 2em;
+    font-weight: 500;
+    font-family: "Oswald", sans-serif;
+    text-align: center;
+    margin: 2rem;
+    word-wrap: normal;
+    text-transform: uppercase;
+    color:#0f3220
+}
+
+h3 {
+    font-size: 1.5em;
+    font-weight: 600;
+    text-align: left;
+    margin: 2rem;
+    word-wrap: normal;
+    color:#0f3220
+}
+
+.main_logo {
+    height: 6em;
+    padding: 20px 20px 20px 10px;
+}
+
+.vl {
+    border-left: 2px solid #e0e0e0;
+    height: 2rem;
+    margin: 5px;
+}
+
+nav {
+    display:flex;
+    flex-direction: column;
+    padding: 0 var(--forced-side-padding);
+    border: 1px  black;
+    border-radius: 15px;
+    box-shadow: 0px 2px 3px 0px #d0d0d0;
+}
+
+a:link{
+    text-decoration: none;
+}
+
+.inicio_content {
+    padding: 20px var(--forced-side-padding);
+    width: calc(100% - var(--forced-side-padding) * 2);
+}
+
+.full_width_image {
+    padding: 20px;
+    width: 100%
+}
+
+.nav_search_bar, .nav_options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav_centered {
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 35px;
+}
+
+
+.horizontal_flex_centered {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: center;
+    
+}
+
+.vertical_flex_centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    
+}
+
+
+.nav_search_bar p {
+    color: #515151;
+    font-size: smaller;
+}
+
+.gray_icon {
+    height: 1.7em;
+    margin: 0.5em;
+    filter: invert(31%) sepia(2%) saturate(10%) hue-rotate(325deg) brightness(94%) contrast(86%);
+}
+
+.green_icon {
+    height: 1.5em;
+    margin: 0 5px;
+    filter: invert(45%) sepia(16%) saturate(1251%) hue-rotate(112deg) brightness(96%) contrast(94%);
+}
+
+.icon {
+    height: 2em;
+    margin: 10px
+}
+
+.icon_small {
+    height: 1em;
+    margin: 10px
+}
+
+.strong_green {
+    color: #00a37c;
+    font-size:small;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.strong_medium {
+    color: black;
+    font-size: 1.5em;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.light_text {
+    color: gray;
+    font-size: 1em;
+}
+
+.search_bar {
+    background-color: #f8f8f8;
+    border: 2px solid #dadada;
+    border-radius: 30px;
+    padding: 10px;
+    margin: 10px;
+    flex-grow: 1;
+    display: flex;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    min-width: 35%;
+    
+}
+
+.search_bar span {
+    color: #b9b9b9;
+}
+
+
+.nuevo_indicador {
+    color: white;
+    background-color: #00a37c;
+    font-size: x-small;
+    padding: 2px 5px;
+    border-radius: 15px;
+}
+
+#ofertas_texto {
+    color: #ff4949
+}
+
+.nav_text {
+    color: #515151;
+    margin: 2px 15px 5px 5px
+}
+
+.body_text {
+    color: #252423;
+    font-size: medium;
+    font-weight: 400;
+    padding: 0.5em 1em;
+}
+
+
+.content_departamentos_con_icono {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 35px 20px;
+    margin: 3em 0 0 0;
+
+    text-align: center;
+}
+
+#content_pasos {
+    display:flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+#content_pasos h2 {
+    width: 50%;
+    text-align: left;
+}
+
+#content_pasos p {
+    font-size: 1.8em;
+}
+
+.content_pasos_item {
+    background-color: #fbdc74;
+    width: 25rem;
+    padding: 1% 3% 10% 3%;
+    border-radius: 10%;
+}
+
+
+@keyframes scroll {
+    /*https://stackoverflow.com/questions/70442770/infinite-scrolling-carousel-css-only*/
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(var(--slide-width) * var(--no-of-slides)* -1));
+    }
+  }
+
+.content_slideshow_title {
+    color:#0f3220;
+    text-transform: uppercase;
+    font-weight: bolder;
+    font-size: 3em;
+    margin: 0
+}
+
+.content_slideshow_star {
+    font-size: 5em;
+    margin: 0;
+    padding: 0;
+    color: #00d282
+}
+
+#content_slideshow {
+    display: flex;
+
+
+    overflow-x: auto;
+    overflow-y: auto;
+    scroll-snap-type: x mandatory;
+
+    scroll-behavior: smooth;
+    /* overflow: hidden; */
+}
+
+.content_slideshow_slide {
+    flex-shrink: 0;
+    display: flex; 
+    scroll-snap-align: center;
+    animation: scroll var(--iteration-time) linear infinite;
+}
+
+#login_dialog {
+    width: 400px;
+    justify-content:  space-between;
+    align-content: center;
+    padding:25px;
+
+    border-radius: 15px;
+    box-shadow: -5px 5px 15px 20px #d0d0d01f;
+
+}
+
+#login_dialog .horizontal_flex_centered{
+    justify-content: space-between;
+    width: 100%;
+}
+
+#login_dialog label {
+    color: gray;
+    font-size: 1em;
+    width: 100%;
+    margin: 2em
+}
+
+#login_dialog input {
+    width: 80%;
+    padding: 0 2% 2% 0;
+    height: 2em;
+    border: 1px solid lightgray;
+    border-radius: 10px;
+}
+
+#sign_in_button {
+    margin: 5% 0;
+    border: 0px;
+    width: 85%;
+    padding: 3%;
+    border-radius: 20px;
+    color: lightgray;
+    cursor:not-allowed
+}
+
+#login_dialog p {
+    font-size: x-small;
+    color: #252423;
+    padding: 15px 0;
+}
+
+::placeholder {
+    padding-left: 10px;
+    align-items: ce;
+    color: lightgray;
+}
+
+#alt_login_methods {
+    align-items:center;
+    justify-content: left;
+    
+}
+
+#alt_login_methods img {
+    padding: 1em;
+    padding-right: 50px;
+}
+
+#alt_login_methods p {
+    width: 100%;
+    text-align: center;
+    font-size: small;
+    font-weight: 500;
+}
+
+.collection_content {
+    height: 100%;
+    flex-grow: 1;
+}
+
+.sidenav {
+    height: 100%;
+    width: 30%;
+    z-index: 1;
+    margin-left: 13%;
+    overflow-x: hidden;
+    padding-top: 20px;
+    max-width: 300px;
+
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+}
+
+.collection_content .sidenav .horizontal_flex_centered{
+    width: 100%;
+    justify-content: space-around;
+}
+
+.sidenav .horizontal_flex_centered img {
+    height: 15px;
+}
+
+.collection_content .sidenav strong {
+    margin: 2rem;
+    font-size: 1.5em;
+
+}
+
+.collection_content .sidenav .sidenav_categoria {
+    margin: 2%;
+}
+
+
+.sidenav_categoria {
+    flex-grow: 1;
+    font-size: 1.5rem;
+    padding: 10px 0;
+}
+
+.collection_content .sidenav .sidenav_icon_label_container .sidenav_icon {
+    padding: 5px;
+    height: 2rem;
+}
+
+#icon_etiqueta_descuento {
+    filter: invert(42%) sepia(63%) saturate(3368%) hue-rotate(335deg) brightness(107%) contrast(100%);
+ 
+}
+
+.collection_content .sidenav .sidenav_icon_label_container {
+
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.collection_content .sidenav .sidenav_icon_label_container span {
+
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.collection_content .sidenav .sidenav_icon_label_container .sidenav_descuento {
+    color: #ff4949;
+}
+
+
+
+.collection_content .sidenav .horizontal_flex_centered h3 {
+    font-size: 2em;
+    text-align: left;
+    flex-grow: 1;
+}
+
+
+.site_path_visualizer {
+    margin: 10px;
+    margin-left: 13%;
+    display:flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.site_path_visualizer span {
+    font-size: 1.5em;
+    color: gray;
+}
+
+.site_path_visualizer span strong {
+    color: black;
+    text-decoration: underline;
+    font-weight: bolder;
+}
+

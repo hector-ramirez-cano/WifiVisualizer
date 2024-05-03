@@ -1,0 +1,50 @@
+@startuml
+
+!theme mars
+
+
+'left to right direction
+'top to bottom direction
+'skinparam nodesep 10
+'skinparam ranksep 150
+'skinparam linetype polyline
+
+Title Database
+
+together {
+
+    map Image {
+        image_id => <&key> PK, int
+        data => bytes
+    }
+    
+    map Users {
+        user_id     => <&key> PK, Int
+        OAuth_token => String
+        OAuth_expiration => Datetime
+    }
+
+    map Palette {
+        palette_id => <&key>PK, int
+        palette_seed => String
+    }
+}
+Users -[hidden]d-> Palette
+Palette -[hidden]d-> Image
+
+
+
+map Record {
+    record_id => <&key> PK, Int
+    creator_user_id => FK, Int
+    palette_id => FK, Int
+    image_id  => FK, int
+    coordinates => (Float, Float)
+    data => JSON
+}
+Record::creator_user_id -> Users::user_id
+Record::palette_id -> Palette::palette_id
+Record::image_id -> Image::image_id
+
+Users ---[hidden]-> Record 
+@enduml

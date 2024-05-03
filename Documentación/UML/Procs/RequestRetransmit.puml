@@ -1,0 +1,37 @@
+@startuml RequestRetransmit
+
+    Title Request Retransmit
+
+    Entity PC   as PC
+    Entity ESP32 as ESP32
+
+    ESP32 -> PC : (1) RecordRSSI
+    ESP32 -x PC : (2) RecordRSSI
+    ESP32 -> PC : (3) RecordRSSI
+    ESP32 -x PC : (4) RecordRSSI
+    ESP32 -> PC : (5) RecordRSSI
+    
+    ... 
+
+    ESP32 -> PC : (6) RequestAck
+    hnote over ESP32: IDLE
+    ...
+
+    PC -> ESP32: (1) RequestRetransmit(2)
+    PC -> ESP32: (2) RequestRetransmit(4)
+    ESP32 -> PC: (4) RecordRSSI
+    ESP32 -> PC: (2) RecordRSSI
+    PC -> ESP32: (3) Ack (6)
+
+
+
+    note over PC, ESP32
+        Frames 1 through 6
+        of the ESP
+        are aknowledged
+    end note
+
+    ESP32 -> PC: (7) RecordRSSI
+    ...
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml Record
+
+    Title Record Transmission
+
+    Entity PC    as PC
+    Entity ESP32 as ESP32
+
+    ESP32 -> PC: (n) AddSSID | addBSSID
+    ESP32 -> PC: ... m
+    ESP32 -> PC: (n+m)RecordRSSI
+
+    ... Recording x ...
+    ESP32 -> PC: (n+m+x) RequestAck
+    hnote over ESP32,PC: RequestAck Process
+
+    ... Continue recording ...
+
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml Syn
+
+    Title Sync Start of Transmission
+
+    Entity PC   as PC
+    Entity ESP32 as ESP32
+
+    hnote over ESP32 : IDLE
+
+    PC -> ESP32 : (0) StartOfTransmission 
+
+    hnote over PC : IDLE
+
+    ESP32 -> PC : (0) Ack (0)
+
+    hnote over ESP32 : IDLE
+
+    PC -> ESP32 : (1) Reset
+
+    ESP32 -> PC : (1) Ack (1)
+
+    hnote over ESP32,PC: Jump to Reset
+
+
+
+
+@enduml
