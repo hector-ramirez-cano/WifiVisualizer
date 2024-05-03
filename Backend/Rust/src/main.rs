@@ -8,6 +8,7 @@ extern crate serial;
 
 
 use rocket::fs::{FileServer, relative};
+use rocket_oauth2::OAuth2;
 
 pub use crate::internal::frame_type::*;
 use crate::internal::frame_ops::*;
@@ -16,15 +17,21 @@ use crate::internal::procs::*;
 #[launch]
 fn launch() -> _ {
     println!("[DEBUG]Launching API Server");
-    let fileserver = FileServer::from(relative!("../../../Frontend/public/"));
-    dbg!(&fileserver);
+    let fileserver = FileServer::from(relative!("../../Frontend/public/"));
 
     rocket::build()
     .mount("/public", fileserver)
     .mount("/", routes![
         controller::api::index,
         controller::api::login,
+        controller::api::logout,
+        controller::api::invalid_msg,
+
+        controller::api::google_login,
+        controller::api::google_auth_callback,
+
         ])
+    .attach(OAuth2::<controller::api::Google>::fairing("google"))
 }
 
 fn foo() { 
