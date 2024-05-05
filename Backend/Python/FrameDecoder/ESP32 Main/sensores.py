@@ -1,6 +1,7 @@
 import machine
 import utils
 import mpu6050
+import hmc5883l
 
 # Clase base
 class sensor():
@@ -23,3 +24,15 @@ class ACCEL(sensor):
         
         return (acc["x"], acc["y"], acc["z"], gyro["x"], gyro["y"], gyro["z"])
 
+
+class MAGNET(sensor):
+    def __init__(self, sda: int, scl: int, declination: tuple = (0, 0)):
+        self.handle = hmc5883l.HMC5883L(scl = scl, sda = sda, declination = declination)
+        
+    
+    def measure(self):
+        heading = self.handle.heading()
+        
+        angle = heading[0] + heading[1] / 60
+        
+        return angle

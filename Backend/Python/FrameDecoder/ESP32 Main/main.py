@@ -35,6 +35,8 @@ UART2_RX_PIN  = 16
 UART2_TX_PIN  = 17
 ACCEL_SCL_PIN = 22 # No puede cambiar sin alterar la librería
 ACCEL_SDA_PIN = 21 # No puede cambiar sin alterar la librería
+MAGNT_SCL_PIN = 33
+MAGNT_SDA_PIN = 32
 V_STEPPER     = [2 , 4 , 18, 19]
 H_STEPPER     = [13, 12, 14, 27]
 
@@ -42,6 +44,7 @@ H_STEPPER     = [13, 12, 14, 27]
 # Handles
 UART2     = machine.UART(2)
 ACCEL     = sensores.ACCEL(sda=ACCEL_SDA_PIN, scl=ACCEL_SCL_PIN)
+MAGNT     = sensores.MAGNET(sda=MAGNT_SDA_PIN, scl=MAGNT_SCL_PIN, declination=(4, 55))
 V_STEPPER = Stepper.Stepper(mode="HALF_STEP", pin1=V_STEPPER[0], pin2=V_STEPPER[1], pin3=V_STEPPER[2], pin4=V_STEPPER[3], delay=5)
 H_STEPPER = Stepper.Stepper(mode="HALF_STEP", pin1=H_STEPPER[0], pin2=H_STEPPER[1], pin3=H_STEPPER[2], pin4=H_STEPPER[3], delay=5)
 nic       = network.WLAN(network.STA_IF)
@@ -74,19 +77,24 @@ def onPositionChange(state: State, old_pitch, old_yaw):
         log(LOGGING_LEVEL_VERBOSE, f"delta_pitch={delta_pitch}, delta_yaw={delta_yaw}")
     
     else:
-        log(LOGGING_LEVEL_INFO, "Measuring current pitch...")
-        acc, sz = 0, 10
+        log(LOGGING_LEVEL_INFO, "Measuring current pitch and yaw...")
+        pitch, yaw = sz = 0, 0, 10
         
         for i in range(sz):
             (acc_x, _, _, _, _, _) = ACCEL.measure()
-            acc += utils.angle_from_gravity(acc_x)
+            pitch += utils.angle_from_gravity(acc_x)
+            yaw   += MAGNT.measure()
             time.sleep_ms(5)
             
-        avg_pitch = acc / sz
+        avg_pitch = pitch / sz
+        avg_yaw   = yaw   / sz
         req_pitch = state.position.pitch_as_deg()
+        req_yaw   = state.position.yaw_as_deg()
         log(LOGGING_LEVEL_INFO, f"measured pitch = {avg_pitch}°, requeuested pitch = {req_pitch}")
+        log(LOGGING_LEVEL_INFO, f"measured yaw   = {avg_yaw}°, requeuested yaw = {req_yaw}")
         
         delta_pitch = req_pitch - avg_pitch
+        delta_yaw   = req_yaw   - avg_yaw
         state.known_position = True
         
 
