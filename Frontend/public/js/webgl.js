@@ -2,6 +2,7 @@ import { initBuffers } from "./init-buffers.js";
 import { drawScene   } from "./draw-scene.js";
 import { initShaderProgram  } from "./shader.js";
 import { loadTexture } from "./texture.js";
+import { sphere } from "./shape-gen.js";
 
 let cubeRotation = 0.0;
 let deltaTime = 0;
@@ -81,9 +82,11 @@ function main() {
         },
     };
 
+    const s = sphere(32);
+
     // Here's where we call the routine that builds all the
     // objects we'll be drawing.
-    const buffers = initBuffers(gl);
+    const buffers = initBuffers(gl, s);
 
     // Load texture
     const texture = loadTexture(gl, "cubetexture.png");
@@ -93,12 +96,12 @@ function main() {
     let then = 0;
 
     // Draw the scene repeatedly
-    function render(now) {
+    function render(now, sphere) {
         now *= 0.001; // convert to seconds
         deltaTime = now - then;
         then = now;
 
-        drawScene(gl, programInfo, buffers, texture, cubeRotation);
+        drawScene(gl, programInfo, buffers, texture, s, cubeRotation);
         cubeRotation += deltaTime;
 
         requestAnimationFrame(render);
