@@ -34,17 +34,17 @@ Palette -[hidden]d-> Image
 
 
 
-map Record {
-    record_id => <&key> PK, Int
+map Project {
+    project_id => <&key> PK, Int
     creator_user_id => FK, Int
     palette_id => FK, Int
     image_id  => FK, int
     coordinates => (Float, Float)
     data => JSON
 }
-Record::creator_user_id -> Users::user_id
-Record::palette_id -> Palette::palette_id
-Record::image_id -> Image::image_id
+Project::creator_user_id -> Users::user_id
+Project::palette_id -> Palette::palette_id
+Project::image_id -> Image::image_id
 
-Users ---[hidden]-> Record 
+Users ---[hidden]-> Project
 @enduml
