@@ -1,5 +1,5 @@
 
-use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::{content::RawHtml, Redirect}};
+use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::Redirect};
 use rocket_oauth2::{OAuth2, TokenResponse};
 
 #[derive(Debug)]
@@ -10,13 +10,23 @@ const OAUTH2_TOKEN_COOKIE : & 'static str = "oauth_token";
 
 
 #[get("/")]
-pub fn index() -> &'static str {
-    "Hello, World!"
+pub fn index() -> Redirect {
+    Redirect::to("/home")
+}
+
+#[get("/home")]
+pub async fn home() -> Option<NamedFile> {
+    NamedFile::open(relative!("../../Frontend/public/home.html")).await.ok()
 }
 
 #[get("/login")]
 pub async fn login() -> Option<NamedFile> {
     NamedFile::open(relative!("../../Frontend/public/login.html")).await.ok()
+}
+
+#[get("/view")]
+pub async fn view() -> Option<NamedFile> {
+    NamedFile::open(relative!("../../Frontend/public/view.html")).await.ok()
 }
 
 #[get("/invalid/<msg>")]
@@ -36,7 +46,7 @@ pub fn logout(cookies: &CookieJar<'_>) -> Redirect {
 
 #[get("/login/google")]
 pub fn google_login(oauth2: OAuth2<Google>, cookies: &CookieJar<'_>) -> Redirect {
-    if let Some(token) = cookies.get(OAUTH2_TOKEN_COOKIE) {
+    if let Some(_token) = cookies.get(OAUTH2_TOKEN_COOKIE) {
 
         Redirect::to("/")
     } else {

@@ -24,6 +24,8 @@ fn launch() -> _ {
     .mount("/", routes![
         controller::api::index,
         controller::api::login,
+        controller::api::view,
+        controller::api::home,
         controller::api::logout,
         controller::api::invalid_msg,
 
