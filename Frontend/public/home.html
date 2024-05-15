@@ -55,8 +55,6 @@
                 <img id="project_list_chevron" class="icon_small toggleable" src="/public/res/svg/chevron-bottom.svg">
             </div>
         
-        
-        
             <div id="side_nav_project_list">
                 <h3 class="project_link" onclick="load_project(1)">Proyecto 1</h3>
                 <h3 class="project_link" onclick="load_project(2)">Proyecto 2</h3>
@@ -76,7 +74,7 @@
         
         
             <div id="side_nav_capture_list">
-                <h3 class="project_link in_capture" onclick="load_project(7)">Proyecto 7</h3>
+                <h3 class="project_link in_capture" onclick="load_capture(7)">Proyecto 7</h3>
             </div>
         
         </nav>
@@ -121,7 +119,7 @@
                     <p class="project_date">01/02/03</p>
                 </div>
 
-                <div class="project_item in_capture" onclick="load_project(7)">
+                <div class="project_item in_capture" onclick="load_capture(7)">
                     <img class="placeholder_project_image" src="/public/res/raster/projectCoverCapturePlaceholder.png">
                     <p class="project_title">Proyecto 7</p>
                     <p class="project_date">01/02/03</p>
@@ -172,6 +170,10 @@
 
     function load_project(id) {
         window.location="/view/"+id;
+    }
+
+    function load_capture(id) {
+        window.location="/capture/"+id;
     }
 </script>
 
