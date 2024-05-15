@@ -34,3 +34,7 @@
     text-align: right;
     color: #585858;
 }
+
+.in_capture {
+    cursor: wait;
+}
