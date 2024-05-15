@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/public/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/home_styles.css">
+    
+    
+    <title>Home</title>
+</head>
+<nav class="nav_left_aligned">
+    <div class="centered"><a href="/home"><img class="main_logo" src="/public/res/svg/dial.svg" alt="logo de la aplicación"></a></div>
+
+
+    <h1 class="vertical_centered">Wifi visualizer</h1>
+
+    <!-- TODO: Action -->
+    <input type="text" id="nav_search_bar" name="search_bar_input" autocomplete="false" placeholder="Busca en tus proyectos">
+    
+    <img src="" class="icon">
+
+    <a href="/login">
+        <div id="login_button">
+            <p>login</p>
+        </div>
+    </a>
+
+    <a href="/logout">
+        <div id="logout_button">
+            <p>logout</p>
+        </div>
+    </a>
+</nav>
+
+
+<body class="vertical_flex_centered">
+
+    <div id="main">
+        <nav id="side_nav">
+
+            <div style="margin: 1em">
+                <div id="nuevo_proyecto" onclick="window.location='/capture'">
+                    <p>Nuevo</p>
+                </div>
+            </div>
+            
+        
+            <div class="horizontal_flex_centered toggleable" onclick="toggle_project_list_view()">
+                <h2>
+                    Mis Proyectos
+                </h2>
+        
+                <img id="project_list_chevron" class="icon_small toggleable" src="/public/res/svg/chevron-bottom.svg">
+            </div>
+        
+        
+        
+            <div id="side_nav_project_list">
+                <h3>Proyecto 1</h3>
+                <h3>Proyecto 2</h3>
+                <h3>Proyecto 3</h3>
+                <h3>Proyecto 4</h3>
+                <h3>Proyecto 5</h3>
+                <h3>Proyecto 6</h3>
+            </div>
+        
+            <div class="horizontal_flex_centered toggleable" onclick="toggle_capture_list_view()">
+                <h2>
+                    En captura
+                </h2>
+        
+                <img id="project_capture_list_chevron" class="icon_small toggleable" src="/public/res/svg/chevron-bottom.svg">
+            </div>
+        
+        
+            <div id="side_nav_capture_list">
+                <h3>Proyecto 7</h3>
+            </div>
+        
+        </nav>
+        
+        <div id="body_content">
+            <h1 id="welcome_text">¡Bienvenido, [[USUARIO]]!</h1>
+
+            <div id="project_grid">
+                <div class="project_item">
+                    <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+                    <p class="project_title">Projecto 1</p>
+                    <p class="project_date">01/02/03</p>
+                </div>
+
+                <div class="project_item">
+                    <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+                    <p class="project_title">Projecto 2</p>
+                    <p class="project_date">01/02/03</p>
+                </div>
+
+                <div class="project_item">
+                    <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+                    <p class="project_title">Projecto 3</p>
+                    <p class="project_date">01/02/03</p>
+                </div>
+
+                <div class="project_item">
+                    <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+                    <p class="project_title">Projecto 4</p>
+                    <p class="project_date">01/02/03</p>
+                </div>
+
+                <div class="project_item">
+                    <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+                    <p class="project_title">Projecto 5</p>
+                    <p class="project_date">01/02/03</p>
+                </div>
+
+                <div class="project_item">
+                    <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+                    <p class="project_title">Projecto 6</p>
+                    <p class="project_date">01/02/03</p>
+                </div>
+
+                <div class="project_item">
+                    <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+                    <p class="project_title">Projecto 7</p>
+                    <p class="project_date">01/02/03</p>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+        
+</body>
+
+<script>
+    function toggle_project_list_view() {
+        let projectList = document.getElementById("side_nav_project_list");
+        let chevron = document.getElementById("project_list_chevron")
+
+        if (projectList.style.visibility === "") {
+            projectList.style.transform = "scaleX(0)";
+            projectList.style.visibility = "hidden";
+            projectList.style.display = "none"
+            chevron.style.transform = "rotate(180deg)";
+        }
+        else {
+            projectList.style.visibility = "";
+            projectList.style.display = "";
+            // projectList.style.transform = "scaleX(1)";
+            chevron.style.transform = "rotate(0deg)";
+
+            setTimeout(function() {projectList.style.transform = "scaleX(1)";}, 10);
+        }
+    }
+
+    function toggle_capture_list_view() {
+        let projectList = document.getElementById("side_nav_capture_list");
+        let chevron = document.getElementById("project_capture_list_chevron")
+
+        if (projectList.style.visibility === "") {
+            projectList.style.transform = "scaleX(0)";
+            projectList.style.visibility = "hidden";
+            chevron.style.transform = "rotate(180deg)";
+        }
+        else {
+            projectList.style.visibility = "";
+            // projectList.style.display = "";
+            projectList.style.transform = "scaleX(1)";
+            chevron.style.transform = "rotate(0deg)";
+        }
+    }
+</script>
+
+</html>
