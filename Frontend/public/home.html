@@ -6,63 +6,66 @@
     <link rel="stylesheet" type="text/css" href="/public/css/normalize.css">
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
     <link rel="stylesheet" type="text/css" href="/public/css/home_styles.css">
+    <title>Home</title>
 </head>
 
 
 <body class="vertical_flex_centered">
 
-        
+
 <div id="body_content">
     <h1 id="welcome_text">¡Bienvenido, [[USUARIO]]!</h1>
 
     <div id="project_grid">
         <div class="project_item" onclick="load_project(1)">
-            <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
             <p class="project_title">Proyecto 1 con un nombre bien largo que ocupa todo el espacio disponible</p>
             <p class="project_date">01/02/03</p>
         </div>
 
         <div class="project_item" onclick="load_project(2)">
-            <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
             <p class="project_title">Proyecto 2</p>
             <p class="project_date">01/02/03</p>
         </div>
 
         <div class="project_item" onclick="load_project(3)">
-            <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
             <p class="project_title">Proyecto 3</p>
             <p class="project_date">01/02/03</p>
         </div>
 
         <div class="project_item" onclick="load_project(4)">
-            <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
             <p class="project_title">Proyecto 4</p>
             <p class="project_date">01/02/03</p>
         </div>
 
         <div class="project_item" onclick="load_project(5)">
-            <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
             <p class="project_title">Proyecto 5</p>
             <p class="project_date">01/02/03</p>
         </div>
 
         <div class="project_item" onclick="load_project(6)">
-            <img class="placeholder_project_image" src="/public/res/raster/projectCoverPlaceholder.png">
+            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
             <p class="project_title">Proyecto 6</p>
             <p class="project_date">01/02/03</p>
         </div>
 
         <div class="project_item in_capture" onclick="load_capture(7)">
-            <img class="placeholder_project_image" src="/public/res/raster/projectCoverCapturePlaceholder.png">
+            <img class="placeholder_project_image" alt="preview en carga" src="/public/res/raster/projectCoverCapturePlaceholder.png">
             <p class="project_title">Proyecto 7</p>
             <p class="project_date">01/02/03</p>
         </div>
     </div>
 </div>
-    
-        
+
+
 </body>
 
+
+</html>
 <script>
     function toggle_project_list_view() {
         let projectList = document.getElementById("side_nav_project_list");
@@ -109,8 +112,6 @@
         window.top.document.location="/capture/"+id;
     }
 </script>
-
-</html>
 
 <script>
     function onLoad() {

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" type="text/css" href="/public/css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
+        <link rel="stylesheet" type="text/css" href="/public/css/capture_styles.css">
+        <title>Capture</title>
+    </head>
+    <body>
+
+        <div>
+
+            <div id="requirements_list_container">
+
+                <div id="esp32_requirements_display" class="requirements_ready">ESP32</div>
+
+                <div id="esp32cam_requirements_display" class="requirements_ready">ESP32 Cam gurl!</div>
+
+                <div id="backend_requirements_display" class="requirements_not_ready">Backend</div>
+
+            </div>
+
+            <div id="capture_workbench">
+                <div id="capture_parameter_list" class="vertical_flex_centered">
+                    <div class="capture_paramter_item">Parámetro 1 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
+                    <div class="capture_paramter_item">Parámetro 2 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
+                    <div class="capture_paramter_item">Parámetro 3 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
+                    <div class="capture_paramter_item">Parámetro 4 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
+                    <div class="capture_paramter_item">Parámetro 5 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
+                    <div class="capture_paramter_item">Parámetro 6 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div id="capture_console">
+
+                    Console
+                </div>
+            </div>
+        </div>
+
+        <!-- TODO: Acción -->
+        <div id="capture_button">
+            Comenzar Captura
+        </div>
+    </body>
+</html>
+
+<script>
+    function onLoad() {
+        window.top.document.title = "Capture"
+    }
+    onLoad();
+</script>
