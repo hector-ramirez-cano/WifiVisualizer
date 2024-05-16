@@ -23,9 +23,10 @@ fn launch() -> _ {
     .mount("/public", fileserver)
     .mount("/", routes![
         controller::api::index,
-        controller::api::login,
         controller::api::view,
         controller::api::home,
+        controller::api::capture,
+        controller::api::login,
         controller::api::logout,
         controller::api::invalid_msg,
 

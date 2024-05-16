@@ -1,5 +1,5 @@
 
-use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::Redirect};
+use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, outcome::IntoOutcome, response::Redirect};
 use rocket_oauth2::{OAuth2, TokenResponse};
 
 #[derive(Debug)]
@@ -8,6 +8,13 @@ pub struct GitHub;
 
 const OAUTH2_TOKEN_COOKIE : & 'static str = "oauth_token";
 
+macro_rules! login_guard {
+    ( $cookies:expr ) => {
+        if $cookies.get_private(&OAUTH2_TOKEN_COOKIE).is_none() {
+            return Err(Redirect::to("/login"));
+        }    
+    };
+}
 
 #[get("/")]
 pub fn index() -> Redirect {
@@ -15,8 +22,23 @@ pub fn index() -> Redirect {
 }
 
 #[get("/home")]
-pub async fn home() -> Option<NamedFile> {
-    NamedFile::open(relative!("../../Frontend/public/home.html")).await.ok()
+pub async fn home(cookies: &CookieJar<'_>) -> Result<NamedFile, Redirect> {
+    login_guard!(cookies);
+
+    NamedFile::open(relative!("../../Frontend/public/home.html")).await.or_else(|_| Err(Redirect::to("/error")))
+}
+#[get("/view")]
+pub async fn view(cookies: &CookieJar<'_>) -> Result<NamedFile, Redirect> {
+    login_guard!(cookies);
+
+    NamedFile::open(relative!("../../Frontend/public/view.html")).await.or_else(|_| Err(Redirect::to("/error")))
+}
+
+#[get("/capture")]
+pub async fn capture(cookies: &CookieJar<'_>) -> Result<NamedFile, Redirect> {
+    login_guard!(cookies);
+
+    NamedFile::open(relative!("../../Frontend/public/capture.html")).await.or_else(|_| Err(Redirect::to("/error")))
 }
 
 #[get("/login")]
@@ -24,10 +46,7 @@ pub async fn login() -> Option<NamedFile> {
     NamedFile::open(relative!("../../Frontend/public/login.html")).await.ok()
 }
 
-#[get("/view")]
-pub async fn view() -> Option<NamedFile> {
-    NamedFile::open(relative!("../../Frontend/public/view.html")).await.ok()
-}
+
 
 #[get("/invalid/<msg>")]
 pub fn invalid_msg(msg: &str) -> String {
@@ -46,12 +65,15 @@ pub fn logout(cookies: &CookieJar<'_>) -> Redirect {
 
 #[get("/login/google")]
 pub fn google_login(oauth2: OAuth2<Google>, cookies: &CookieJar<'_>) -> Redirect {
+    println!("[DEBUG]Logged in!");
     if let Some(_token) = cookies.get(OAUTH2_TOKEN_COOKIE) {
 
+        println!("[DEBUG]Redirecting to /");
         Redirect::to("/")
     } else {
 
         // Redirect to google's auth server or local invalid login
+        println!("[DEBUG]Redirecting to google auth api endpoint");
         oauth2.get_redirect(
             cookies,
             &[
