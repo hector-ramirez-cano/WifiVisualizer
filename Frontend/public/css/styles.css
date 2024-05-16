@@ -37,6 +37,10 @@ h3 {
     font-size:medium;
     margin: 1em 1em 2em 4em;
     user-select: none;
+
+
+    transition: transform 0.3s ease;
+    transform-origin: 0% 0%;
 }
 
 header {
@@ -132,6 +136,7 @@ a:link{
 #side_nav {
 
     height: 100%;
+    padding: 2em;
 
     border: 1px  black;
     border-radius: 15px;
@@ -141,6 +146,12 @@ a:link{
 #side_nav_project_list, #side_nav_capture_list {
     transform-origin: 0% 0%;
     transition: transform 500ms ease;
+    transform: scaleY(1);
+}
+
+#side_nav_project_list::after, #side_nav_capture_list::after {
+    visibility: hidden;
+    transform: scaleY(0.5);
 }
 
 .vertical_centered {
@@ -273,4 +284,9 @@ a:link{
     text-align: center;
     font-size: small;
     font-weight: 500;
+}
+
+#body_content {
+    width: 100%;
+    height: 100%;
 }

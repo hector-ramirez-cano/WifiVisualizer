@@ -1,21 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="/public/css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
-    <link rel="stylesheet" type="text/css" href="/public/css/home_styles.css">
-</head>
-<nav class="nav_left_aligned">
+<nav class="nav_left_aligned" aria-label="navigation">
     <div class="centered"><a href="/home"><img class="main_logo" src="/public/res/svg/dial.svg" alt="logo de la aplicación"></a></div>
 
     <h1 class="vertical_centered">Wifi visualizer</h1>
 
     <!-- TODO: Action -->
-    <input type="text" id="nav_search_bar" name="search_bar_input" autocomplete="false" placeholder="Busca en tus proyectos">
-    
-    <img src="" class="icon">
+    <input type="text" id="nav_search_bar" name="search_bar_input" autocomplete="off" placeholder="Busca en tus proyectos">
 
     <a href="/login">
         <div id="login_button">
@@ -31,26 +21,41 @@
 </nav>
 
 
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/public/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
+    <title>Navigation Page</title>
+</head>
+
 <body class="vertical_flex_centered">
 
     <div id="main">
-        <nav id="side_nav">
+        <div id="side_nav">
 
-            <div style="margin: 1em">
-                <div id="nuevo_proyecto" onclick="window.top.document.location='/capture'">
-                    <p>Nuevo</p>
-                </div>
+            <div id="nuevo_proyecto" onclick="window.top.document.location='/capture'">
+                <p>Nuevo</p>
             </div>
-            
-        
+
+            <div class="horizontal_flex_centered toggleable" onclick="toggle_capture_list_view()">
+                <h2>En captura</h2>
+
+                <img id="project_capture_list_chevron" class="icon_small toggleable" alt="chevron" src="/public/res/svg/chevron-bottom.svg">
+            </div>
+
+            <div id="side_nav_capture_list">
+                <h3 class="project_link in_capture" onclick="load_capture(7)">Proyecto 7</h3>
+            </div>
+
             <div class="horizontal_flex_centered toggleable" onclick="toggle_project_list_view()">
-                <h2>
-                    Mis Proyectos
-                </h2>
-        
-                <img id="project_list_chevron" class="icon_small toggleable" src="/public/res/svg/chevron-bottom.svg">
+                <h2>Mis Proyectos</h2>
+
+                <img id="project_list_chevron" class="icon_small toggleable" alt="chevron" src="/public/res/svg/chevron-bottom.svg">
             </div>
-        
+
             <div id="side_nav_project_list">
                 <h3 class="project_link" onclick="load_project(1)">Proyecto 1</h3>
                 <h3 class="project_link" onclick="load_project(2)">Proyecto 2</h3>
@@ -59,64 +64,65 @@
                 <h3 class="project_link" onclick="load_project(5)">Proyecto 5</h3>
                 <h3 class="project_link" onclick="load_project(6)">Proyecto 6</h3>
             </div>
-        
-            <div class="horizontal_flex_centered toggleable" onclick="toggle_capture_list_view()">
-                <h2>
-                    En captura
-                </h2>
-        
-                <img id="project_capture_list_chevron" class="icon_small toggleable" src="/public/res/svg/chevron-bottom.svg">
-            </div>
-        
-        
-            <div id="side_nav_capture_list">
-                <h3 class="project_link in_capture" onclick="load_capture(7)">Proyecto 7</h3>
-            </div>
-        
-        </nav>
-        
-        <embed id="body_content" src="/public/home.html" style="width: 100%; height: 100%">
-            
+
+        </div>
+
+        <embed title="Home" id="body_content" src="/public/capture.html">
+
     </div>
-        
+
 </body>
 
-<script>
-    function toggle_project_list_view() {
-        let projectList = document.getElementById("side_nav_project_list");
-        let chevron = document.getElementById("project_list_chevron")
+</html>
 
-        if (projectList.style.visibility === "") {
-            projectList.style.transform = "scaleX(0)";
-            projectList.style.visibility = "hidden";
-            projectList.style.display = "none"
+<script>
+    function toggle_list_view(projectList, chevron) {
+        if (projectList.style.transform === "scaleY(0)") {
+            projectList.style.transitionDelay = 0;
+            projectList.style.transition = "transform 0.0s ease";
+            projectList.style.transform = "scaleY(1)";
+
+            for (var i = 0 ; i < projectList.children.length; i++) {
+                let child = projectList.children[i];
+
+                child.style.transition= "transform 0.3s ease"
+                child.style.transform = "scaleX(1)";
+                child.style.transitionDelay = i * 50 + 10 + "ms";
+            }
+            chevron.style.transform = "rotate(0deg)";
+        }
+        else  {
+            
+            projectList.style.transform = "scaleY(0)";
+            projectList.style.transition = "transform 0.3s ease";
+            projectList.style.transitionDelay = (projectList.children.length * 50 + 10 + 290) + "ms";
+
+            for (var i = 0 ; i < projectList.children.length; i++) {
+                let child = projectList.children[i];
+
+                child.style.transform = "scaleX(0)";
+                child.style.transition= "transform 0.3s ease"
+                child.style.transitionDelay = (projectList.children.length - i) * 50 + 10 + "ms";
+                
+            }
+
             chevron.style.transform = "rotate(180deg)";
         }
-        else {
-            projectList.style.visibility = "";
-            projectList.style.display = "";
-            // projectList.style.transform = "scaleX(1)";
-            chevron.style.transform = "rotate(0deg)";
+    }
 
-            setTimeout(function() {projectList.style.transform = "scaleX(1)";}, 10);
-        }
+    function toggle_project_list_view() {
+        let projectList = document.getElementById("side_nav_project_list");
+        let chevron = document.getElementById("project_list_chevron");
+
+        toggle_list_view(projectList, chevron);
+
     }
 
     function toggle_capture_list_view() {
         let projectList = document.getElementById("side_nav_capture_list");
         let chevron = document.getElementById("project_capture_list_chevron")
 
-        if (projectList.style.visibility === "") {
-            projectList.style.transform = "scaleX(0)";
-            projectList.style.visibility = "hidden";
-            chevron.style.transform = "rotate(180deg)";
-        }
-        else {
-            projectList.style.visibility = "";
-            // projectList.style.display = "";
-            projectList.style.transform = "scaleX(1)";
-            chevron.style.transform = "rotate(0deg)";
-        }
+        toggle_list_view(projectList, chevron);
     }
 
     function load_project(id) {
@@ -127,5 +133,3 @@
         window.top.document.location="/capture/"+id;
     }
 </script>
-
-</html>

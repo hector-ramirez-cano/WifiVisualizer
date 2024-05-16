@@ -1,3 +1,4 @@
+
 #project_grid {
     display: grid;
     grid-template-columns: repeat( auto-fill, minmax(200px, 33%));
@@ -37,6 +38,7 @@
 }
 
 .project_date {
+    margin-top: 0.5em;
     text-align: right;
     color: #585858;
 }
