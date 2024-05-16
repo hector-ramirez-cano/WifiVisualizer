@@ -16,7 +16,7 @@ export function sphere(density){
 		//longitude
 		for (let j = 0; j < vertLength; j++) {
 			positions.push(latLngToCartesian([1, latitude, longitude]));
-			uvs.push([inverseLerp(0, TWO_PI, longitude), v]);
+			uvs.push([1 - inverseLerp(0, TWO_PI, longitude), v]);
 			longitude += radsPerUnit;
 		}
 		latitude += radsPerUnit;
@@ -25,7 +25,7 @@ export function sphere(density){
 	//colors
 	const colors = [];
 	for(let i = 0; i < positions.length; i++){
-		colors.push([1, 1, 0]);
+		colors.push([1, 1, 0, 1]);
 	}
 
 	//triangles

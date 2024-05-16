@@ -1,4 +1,3 @@
-import { sphere } from "./shape-gen.js"
 
 function initBuffers(gl, sphere) {
     const positionBuffer     = initPositionBuffer(gl, sphere);

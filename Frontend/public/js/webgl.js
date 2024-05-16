@@ -7,6 +7,24 @@ import { sphere } from "./shape-gen.js";
 let cubeRotation = 0.0;
 let deltaTime = 0;
 
+function resizeCanvasToDisplaySize(canvas) {
+    // Lookup the size the browser is displaying the canvas in CSS pixels.
+    const displayWidth  = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
+   
+    // Check if the canvas is not the same size.
+    const needResize = canvas.width  !== displayWidth ||
+                       canvas.height !== displayHeight;
+   
+    if (needResize) {
+      // Make the canvas the same size
+      canvas.width  = displayWidth;
+      canvas.height = displayHeight;
+    }
+   
+    return needResize;
+  }
+
 main();
 
 //
@@ -82,14 +100,14 @@ function main() {
         },
     };
 
-    const s = sphere(32);
+    const s = sphere(30);
 
     // Here's where we call the routine that builds all the
     // objects we'll be drawing.
     const buffers = initBuffers(gl, s);
 
     // Load texture
-    const texture = loadTexture(gl, "public/res/raster/cubetexture.png");
+    const texture = loadTexture(gl, "res/raster/earth.jpg");
     console.log(texture);
     // Flip image pixels into the bottom-to-top order that WebGL expects.
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -97,8 +115,12 @@ function main() {
     let then = 0;
 
     // Draw the scene repeatedly
-    function render(now, sphere) {
-        now *= 0.001; // convert to seconds
+    function render(now) {
+        now *= 0.001; // convert to seconds     
+
+        resizeCanvasToDisplaySize(gl.canvas);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
         deltaTime = now - then;
         then = now;
 

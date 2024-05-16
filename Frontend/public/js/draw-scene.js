@@ -15,8 +15,8 @@ function drawScene(gl, programInfo, buffers, texture, sphere, cubeRotation) {
     // and we only want to see objects between 0.1 units
     // and 100 units away from the camera.
 
-    const fieldOfView = (45 * Math.PI) / 180; // in radians
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    const fieldOfView = (90* Math.PI) / 180; // in radians
+    const aspect = 1.0 //  gl.canvas.clientWidth / gl.canvas.clientHeight;
     const zNear = 0.1;
     const zFar = 100.0;
     const projectionMatrix = mat4.create();
@@ -31,30 +31,27 @@ function drawScene(gl, programInfo, buffers, texture, sphere, cubeRotation) {
 
     // Now move the drawing position a bit to where we want to
     // start drawing the square.
+    /* 
     mat4.translate(
         modelViewMatrix, // destination matrix
         modelViewMatrix, // matrix to translate
-        [-0.0, 0.0, -6.0]
-    ); // amount to translate
+        [-0.0, 0.0, 0.0]
+    ); */ // amount to translate
 
-    mat4.rotate(
+        mat4.rotate(
         modelViewMatrix, // destination matrix
         modelViewMatrix, // matrix to rotate
-        cubeRotation, // amount to rotate in radians
+        Math.PI, // amount to rotate in radians
         [0, 0, 1]
     ); // axis to rotate around (Z)
+
     mat4.rotate(
         modelViewMatrix, // destination matrix
         modelViewMatrix, // matrix to rotate
         cubeRotation * 0.7, // amount to rotate in radians
         [0, 1, 0]
     ); // axis to rotate around (Y)
-    mat4.rotate(
-        modelViewMatrix, // destination matrix
-        modelViewMatrix, // matrix to rotate
-        cubeRotation * 0.3, // amount to rotate in radians
-        [1, 0, 0]
-    ); // axis to rotate around (X)
+
 
     // Tell WebGL how to pull out the positions from the position
     // buffer into the vertexPosition attribute.
