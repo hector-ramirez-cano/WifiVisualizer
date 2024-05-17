@@ -10,11 +10,11 @@
 </head>
 
 
-<body class="vertical_flex_centered">
+<body class="vertical_flex_centered" onload="onLoad()">
 
 
 <div id="body_content">
-    <h1 id="welcome_text">¡Bienvenido, [[USUARIO]]!</h1>
+    <h1 id="welcome_text">Bienvenido, </h1>
 
     <div id="project_grid">
         <div class="project_item" onclick="load_project(1)">
@@ -67,40 +67,55 @@
 
 </html>
 <script>
-    function toggle_project_list_view() {
-        let projectList = document.getElementById("side_nav_project_list");
-        let chevron = document.getElementById("project_list_chevron")
 
-        if (projectList.style.visibility === "") {
-            projectList.style.transform = "scaleX(0)";
-            projectList.style.visibility = "hidden";
-            projectList.style.display = "none"
-            chevron.style.transform = "rotate(180deg)";
+    function getCookie(name) {
+        var dc = document.cookie;
+        var prefix = name + "=";
+        var begin = dc.indexOf("; " + prefix);
+        if (begin == -1) {
+            begin = dc.indexOf(prefix);
+            if (begin != 0) return null;
         }
-        else {
-            projectList.style.visibility = "";
-            projectList.style.display = "";
-            // projectList.style.transform = "scaleX(1)";
-            chevron.style.transform = "rotate(0deg)";
+        else
+        {
+            begin += 2;
+            var end = document.cookie.indexOf(";", begin);
+            if (end == -1) {
+            end = dc.length;
+            }
+        }
+        // because unescape has been deprecated, replaced with decodeURI
+        //return unescape(dc.substring(begin + prefix.length, end));
+        return decodeURI(dc.substring(begin + prefix.length, end));
+    } 
 
-            setTimeout(function() {projectList.style.transform = "scaleX(1)";}, 10);
-        }
+
+    function updateNameTemplate() {
+        let banner = document.getElementById("welcome_text")
+
+        let text = banner.innerText || element.textContent;
+
+        banner.innerHTML = text + " " + getCookie("name");
     }
 
-    function toggle_capture_list_view() {
-        let projectList = document.getElementById("side_nav_capture_list");
-        let chevron = document.getElementById("project_capture_list_chevron")
+    function onLoad() {
 
-        if (projectList.style.visibility === "") {
-            projectList.style.transform = "scaleX(0)";
-            projectList.style.visibility = "hidden";
-            chevron.style.transform = "rotate(180deg)";
-        }
-        else {
-            projectList.style.visibility = "";
-            // projectList.style.display = "";
-            projectList.style.transform = "scaleX(1)";
-            chevron.style.transform = "rotate(0deg)";
+        window.top.document.title = "Home"
+
+        // load username
+        if (getCookie("name") === null) {
+            let request = new XMLHttpRequest();
+            request.open("GET", "https://www.googleapis.com/userinfo/v2/me/");
+            request.setRequestHeader("Authorization", "Bearer " + getCookie("oauth_token"))
+            request.onload = () => { 
+                console.log(request.response);
+                let json = JSON.parse(request.responseText);
+                document.cookie = "name="+json["given_name"];
+                updateNameTemplate();
+            }
+            request.send();
+        } else {
+            updateNameTemplate();
         }
     }
 
@@ -111,11 +126,4 @@
     function load_capture(id) {
         window.top.document.location="/capture/"+id;
     }
-</script>
-
-<script>
-    function onLoad() {
-        window.top.document.title = "Home"
-    }
-    onLoad();
 </script>

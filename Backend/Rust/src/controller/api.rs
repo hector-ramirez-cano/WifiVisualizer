@@ -10,7 +10,6 @@ const OAUTH2_TOKEN_COOKIE : & 'static str = "oauth_token";
 
 macro_rules! login_guard {
     ( $cookies:expr ) => {
-        println!("{:?}", $cookies.get(&OAUTH2_TOKEN_COOKIE));
         if $cookies.get(&OAUTH2_TOKEN_COOKIE).is_none() {
             println!("[DEBUG]Error! Not logged in!");
             return Err(Redirect::to("/login"));
@@ -68,7 +67,7 @@ pub fn logout(cookies: &CookieJar<'_>) -> Redirect {
 #[get("/login/google")]
 pub fn google_login(oauth2: OAuth2<Google>, cookies: &CookieJar<'_>) -> Redirect {
     println!("[DEBUG]Logged in!");
-    if let Some(_token) = cookies.get(OAUTH2_TOKEN_COOKIE) {
+    if cookies.get(OAUTH2_TOKEN_COOKIE).is_some() {
 
         println!("[DEBUG]Redirecting to /");
         Redirect::to("/")
@@ -92,9 +91,10 @@ pub fn google_auth_callback(token: TokenResponse<Google>, cookies: &CookieJar<'_
     // Set a private cookie with the access token
     dbg!(&cookies);
     dbg!(&token);
-    cookies.add_private(
+    cookies.add(
         Cookie::build((OAUTH2_TOKEN_COOKIE, token.access_token().to_string()))
             .same_site(SameSite::Lax)
+            .http_only(false)
             .build()
     );
     Redirect::to("/")

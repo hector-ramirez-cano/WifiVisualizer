@@ -22,6 +22,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/public/css/normalize.css">
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
+
     <title>Navigation Page</title>
 </head>
 
@@ -70,12 +71,13 @@
 </html>
 
 <script>
+
     function onLoad() {
+
+
+        // set embed source
         let embed = document.getElementById("body_content");
         var path = "/public/" + window.location.pathname + ".html";
-
-        console.log(path);
-
         embed.setAttribute("src", path)
     }
 
