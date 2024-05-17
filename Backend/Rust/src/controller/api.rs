@@ -27,20 +27,20 @@ pub fn index() -> Redirect {
 pub async fn home(cookies: &CookieJar<'_>) -> Result<NamedFile, Redirect> {
     login_guard!(cookies);
 
-    NamedFile::open(relative!("../../Frontend/public/home.html")).await.or_else(|_| Err(Redirect::to("/error")))
+    NamedFile::open(relative!("../../Frontend/public/nav.html")).await.or_else(|_| Err(Redirect::to("/error")))
 }
 #[get("/view")]
 pub async fn view(cookies: &CookieJar<'_>) -> Result<NamedFile, Redirect> {
     login_guard!(cookies);
 
-    NamedFile::open(relative!("../../Frontend/public/view.html")).await.or_else(|_| Err(Redirect::to("/error")))
+    NamedFile::open(relative!("../../Frontend/public/nav.html")).await.or_else(|_| Err(Redirect::to("/error")))
 }
 
 #[get("/capture")]
 pub async fn capture(cookies: &CookieJar<'_>) -> Result<NamedFile, Redirect> {
     login_guard!(cookies);
 
-    NamedFile::open(relative!("../../Frontend/public/capture.html")).await.or_else(|_| Err(Redirect::to("/error")))
+    NamedFile::open(relative!("../../Frontend/public/nav.html")).await.or_else(|_| Err(Redirect::to("/error")))
 }
 
 #[get("/login")]

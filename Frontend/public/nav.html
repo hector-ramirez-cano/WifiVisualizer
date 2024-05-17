@@ -25,7 +25,7 @@
     <title>Navigation Page</title>
 </head>
 
-<body class="vertical_flex_centered">
+<body class="vertical_flex_centered" onload="onLoad()">
 
     <div id="main">
         <div id="side_nav">
@@ -61,7 +61,7 @@
 
         </div>
 
-        <embed title="Home" id="body_content" src="/public/capture.html">
+        <embed title="Home" id="body_content" src="">
 
     </div>
 
@@ -70,6 +70,15 @@
 </html>
 
 <script>
+    function onLoad() {
+        let embed = document.getElementById("body_content");
+        var path = "/public/" + window.location.pathname + ".html";
+
+        console.log(path);
+
+        embed.setAttribute("src", path)
+    }
+
     function toggle_list_view(projectList, chevron) {
         if (projectList.style.transform === "scaleY(0)") {
             projectList.style.transitionDelay = 0;
