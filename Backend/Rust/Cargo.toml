@@ -8,6 +8,6 @@ edition = "2021"
 [dependencies]
 serial        = "0.4.0"
 crc           = "3.2.1"
-json          = "0.12.4"
-rocket        = "0.5.0"
-rocket_oauth2 ="0.5.0"
+json          = "0.12.4" # possibly remove in favor of Rocket's implementation of json
+rocket        = { version = "0.5.0", features = ["json"] }
+rocket_oauth2 = "0.5.0"

@@ -1,5 +1,5 @@
 
-use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, outcome::IntoOutcome, response::Redirect};
+use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::{content, Redirect}, serde::json::Value};
 use rocket_oauth2::{OAuth2, TokenResponse};
 
 #[derive(Debug)]
@@ -7,6 +7,7 @@ pub struct Google;
 pub struct GitHub;
 
 const OAUTH2_TOKEN_COOKIE : & 'static str = "oauth_token";
+const OAUTH2_USER_ID      : & 'static str = "oauth_user_id";
 
 macro_rules! login_guard {
     ( $cookies:expr ) => {
@@ -59,7 +60,9 @@ pub fn invalid_msg(msg: &str) -> String {
 
 #[get("/logout")]
 pub fn logout(cookies: &CookieJar<'_>) -> Redirect {
-    cookies.remove_private(OAUTH2_TOKEN_COOKIE);
+    cookies.remove(OAUTH2_TOKEN_COOKIE);
+    cookies.remove(OAUTH2_USER_ID);
+    
 
     Redirect::to("/")
 }
@@ -97,5 +100,57 @@ pub fn google_auth_callback(token: TokenResponse<Google>, cookies: &CookieJar<'_
             .http_only(false)
             .build()
     );
+    
     Redirect::to("/")
+}
+
+#[get("/api/<user_id>/project_list")]
+pub fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
+
+    let cookie_id = cookies.get(&OAUTH2_USER_ID);
+    let invalid = if let Some(val) = cookie_id {
+        // name=value
+        dbg!(&val.to_string().split("=").collect::<Vec<_>>());
+        val.to_string().split("=").collect::<Vec<_>>()[1] != user_id
+    } else { 
+        true //cookie was none
+    };
+
+    if invalid {
+        return rocket::serde::json::json!(
+            {
+                "code": 403,
+                "comment": "Provided user id does not match logged in user id",
+                "list": []
+            }
+        )
+    }
+    // TODO: Consult db
+    rocket::serde::json::json!(
+        {
+            "code": 200,
+            "list": [
+                {
+                    "name": "Capture #1",
+                    "description": "Wassup baby",
+                    "status": "done"
+                },
+                {
+                    "name": "Capture #2",
+                    "description": "How you livin'",
+                    "status": "done"
+                },
+                {
+                    "name": "Capture #2",
+                    "description": "Oh, you haven't seen how mean this dean can be- ean",
+                    "status": "done"
+                },
+                {
+                    "name": "Noice",
+                    "description": "I forgot everything you said after rectum!",
+                    "status": "in capture"
+                }
+            ]
+        }
+    )
 }

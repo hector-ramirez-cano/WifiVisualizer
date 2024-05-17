@@ -33,6 +33,8 @@ fn launch() -> _ {
         controller::api::google_login,
         controller::api::google_auth_callback,
 
+        controller::api::api_get_project_list,
+
         ])
     .attach(OAuth2::<controller::api::Google>::fairing("google"))
 }
