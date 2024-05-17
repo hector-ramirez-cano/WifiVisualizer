@@ -10,7 +10,9 @@ const OAUTH2_TOKEN_COOKIE : & 'static str = "oauth_token";
 
 macro_rules! login_guard {
     ( $cookies:expr ) => {
-        if $cookies.get_private(&OAUTH2_TOKEN_COOKIE).is_none() {
+        println!("{:?}", $cookies.get(&OAUTH2_TOKEN_COOKIE));
+        if $cookies.get(&OAUTH2_TOKEN_COOKIE).is_none() {
+            println!("[DEBUG]Error! Not logged in!");
             return Err(Redirect::to("/login"));
         }    
     };
