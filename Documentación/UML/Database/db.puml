@@ -11,6 +11,11 @@
 
 Title Database
 
+map AuthProvider {
+    provider_id => <&key> PK, Int,
+    provider_name => String
+}
+
 together {
 
     map Image {
@@ -19,32 +24,30 @@ together {
     }
     
     map Users {
-        user_id     => <&key> PK, Int
-        OAuth_token => String
-        OAuth_expiration => Datetime
+        user_id      => <&key> PK, Int
+        OAuth_provider_id => FK, String
+        OAuth_user_Id => Int
     }
 
-    map Palette {
-        palette_id => <&key>PK, int
-        palette_seed => String
-    }
 }
-Users -[hidden]d-> Palette
-Palette -[hidden]d-> Image
+
+Users -[hidden]d-> Image
+
 
 
 
 map Project {
     project_id => <&key> PK, Int
     creator_user_id => FK, Int
-    palette_id => FK, Int
-    image_id  => FK, int
+    image_id  => FK, Int
     coordinates => (Float, Float)
     data => JSON
 }
 Project::creator_user_id -> Users::user_id
-Project::palette_id -> Palette::palette_id
 Project::image_id -> Image::image_id
 
 Users ---[hidden]-> Project
+
+
+Users::OAuth_provider_id -> AuthProvider::provider_id
 @enduml
