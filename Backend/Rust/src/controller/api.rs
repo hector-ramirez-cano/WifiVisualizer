@@ -1,6 +1,8 @@
 
-use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::Redirect, serde::json::Value};
+use rocket::{data::N, fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::Redirect, serde::json::Value};
 use rocket_oauth2::{OAuth2, TokenResponse};
+
+use crate::model::{db, types};
 
 #[derive(Debug)]
 pub struct Google;
@@ -92,8 +94,6 @@ pub fn google_login(oauth2: OAuth2<Google>, cookies: &CookieJar<'_>) -> Redirect
 #[get("/auth/google")]
 pub fn google_auth_callback(token: TokenResponse<Google>, cookies: &CookieJar<'_>) -> Redirect {
     // Set a private cookie with the access token
-    dbg!(&cookies);
-    dbg!(&token);
     cookies.add(
         Cookie::build((OAUTH2_TOKEN_COOKIE, token.access_token().to_string()))
             .same_site(SameSite::Lax)
@@ -105,7 +105,7 @@ pub fn google_auth_callback(token: TokenResponse<Google>, cookies: &CookieJar<'_
 }
 
 #[get("/api/<user_id>/project_list")]
-pub fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
+pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
 
     let cookie_id = cookies.get(&OAUTH2_USER_ID);
     let invalid = if let Some(val) = cookie_id {
@@ -125,6 +125,26 @@ pub fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
             }
         )
     }
+
+    
+    let internal_user = db::get_or_attempt_insert_user_id(user_id, "google").await;
+    let internal_user = match internal_user {
+        None => {
+            return rocket::serde::json::json!(
+                {
+                    "code": 500,
+                    "comment": "Could not create new user id",
+                    "list": []
+                }
+            );
+        }
+
+        Some(id) => id
+    };
+
+    dbg!(&internal_user);
+    
+
     // TODO: Consult db
     rocket::serde::json::json!(
         {

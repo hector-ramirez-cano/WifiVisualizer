@@ -1,6 +1,7 @@
 mod tests;
 mod internal;
 mod controller;
+mod model;
 
 extern crate serial;
 

@@ -103,8 +103,6 @@
 
             if (response["code"] != 200) { return; }
 
-            console.log(response["list"]);
-
             let project_list_container = document.getElementById("side_nav_project_list");
             let pending_list_container = document.getElementById("side_nav_capture_list");
 
@@ -119,7 +117,6 @@
                 h3.innerText = name;
 
                 if (status === "done") {
-                    console.log(h3, name);
                     project_list_container.appendChild(h3);
                 } else if (status === "in capture") {
                     pending_list_container.appendChild(h3);
@@ -134,11 +131,11 @@
         // load username and set project list
         let name_cookies = getCookie("name");
         let user_id      = getCookie("oauth_user_id");
-        if (Object.keys(name_cookies).length == 0 || Object.keys(user_id).length == 0) {
-            console.log("Cookies not found, retrying in 500ms...");
+        if (Object.keys(user_id).length == 0) {
+            console.log("Cookies not found, retrying in 2000ms...", name_cookies, user_id);
             setTimeout(function () {
                 onLoad()
-            }, 500);
+            }, 2000);
         } else {
             updateProjectList(user_id[0]["value"]);
         }
