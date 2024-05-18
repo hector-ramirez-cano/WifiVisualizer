@@ -115,7 +115,7 @@
                 let status = project["status"]
                 let name   = project["name"];
 
-                let h3 = makeWithAttributes("h3", {"class": "project_link"});
+                let h3 = makeWithAttributes("h3", {"class": "project_link clickable"});
                 h3.innerText = name;
 
                 if (status === "done") {
