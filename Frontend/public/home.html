@@ -17,47 +17,7 @@
     <h1 id="welcome_text">Bienvenido, </h1>
 
     <div id="project_grid">
-        <div class="project_item" onclick="load_project(1)">
-            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
-            <p class="project_title">Proyecto 1 con un nombre bien largo que ocupa todo el espacio disponible</p>
-            <p class="project_date">01/02/03</p>
-        </div>
-
-        <div class="project_item" onclick="load_project(2)">
-            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
-            <p class="project_title">Proyecto 2</p>
-            <p class="project_date">01/02/03</p>
-        </div>
-
-        <div class="project_item" onclick="load_project(3)">
-            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
-            <p class="project_title">Proyecto 3</p>
-            <p class="project_date">01/02/03</p>
-        </div>
-
-        <div class="project_item" onclick="load_project(4)">
-            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
-            <p class="project_title">Proyecto 4</p>
-            <p class="project_date">01/02/03</p>
-        </div>
-
-        <div class="project_item" onclick="load_project(5)">
-            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
-            <p class="project_title">Proyecto 5</p>
-            <p class="project_date">01/02/03</p>
-        </div>
-
-        <div class="project_item" onclick="load_project(6)">
-            <img class="placeholder_project_image" alt="preview" src="/public/res/raster/projectCoverPlaceholder.png">
-            <p class="project_title">Proyecto 6</p>
-            <p class="project_date">01/02/03</p>
-        </div>
-
-        <div class="project_item in_capture" onclick="load_capture(7)">
-            <img class="placeholder_project_image" alt="preview en carga" src="/public/res/raster/projectCoverCapturePlaceholder.png">
-            <p class="project_title">Proyecto 7</p>
-            <p class="project_date">01/02/03</p>
-        </div>
+        <!-- To be filled dynamically from js request to api endpoint -->
     </div>
 </div>
 
@@ -83,6 +43,19 @@
         });
     }
 
+    function withAttributes(el, attrs) {
+        for (var key in attrs) {
+            el.setAttribute(key, attrs[key]);
+        }
+
+        return el;
+    }
+
+    function appendChildren(parent, children) {
+        for (var child of children) {
+            parent.appendChild(child);
+        }
+    }
 
     function updateNameTemplate() {
         let banner = document.getElementById("welcome_text")
@@ -92,11 +65,55 @@
         banner.innerHTML = text + " " + getCookie("name")[0]["value"];
     }
 
+    function updateProjectList(user_id) {
+
+        // load project list 
+        let request = new XMLHttpRequest();
+        request.open("GET", "/api/"+user_id+"/project_list")
+        request.onload = () => {
+            let response = JSON.parse(request.responseText);
+
+            if (response["code"] != 200) {
+                return;
+            }
+
+            let project_list_container = document.getElementById("project_grid");
+            for (let project of response["list"]) {
+
+                // choosing of placeholder image depending on status
+                let image_source = "/public/res/raster/";
+                let item_class = "project_item";
+
+                let status = project["status"];
+                if (status === "in capture") {
+                    image_source += "projectCoverCapturePlaceholder.png";
+                    item_class += " in_capture";
+                }
+                else if (status === "done") {
+                    image_source += "projectCoverPlaceholder.png";
+                }
+                
+
+                let parent = withAttributes(document.createElement("div"), {"class": item_class});
+                let image  = withAttributes(document.createElement("img"), {"class": "placeholder_project_image", "alt": "preview", "src": image_source, "title": project["name"] + ": " + project["description"]});
+                let title  = withAttributes(document.createElement("p"  ), {"class": "project_title", "title":project["name"]});
+                let date   = withAttributes(document.createElement("p"  ), {"class": "project_date"});
+
+                title.innerHTML = project["name"];
+                date.innerHTML  = project["date"];
+
+                appendChildren(parent, [image, title, date])
+                project_list_container.appendChild(parent);
+            }
+        }
+        request.send();
+    }
+
     function onLoad() {
 
         window.top.document.title = "Home"
 
-        // load username
+        // load username and projects
         let name_cookies = getCookie("name");
         let user_id      = getCookie("oauth_user_id");
         if (Object.keys(name_cookies).length == 0 || Object.keys(user_id).length == 0) {
@@ -109,11 +126,14 @@
                 document.cookie = "name="+json["given_name"];
                 document.cookie = "oauth_user_id="+json["id"]+"; path=/";
                 updateNameTemplate();
+                updateProjectList(user_id[0]["value"]);
             }
             request.send();
         } else {
             updateNameTemplate();
+            updateProjectList(user_id[0]["value"]);
         }
+
     }
 
     function load_project(id) {

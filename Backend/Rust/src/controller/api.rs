@@ -1,5 +1,5 @@
 
-use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::{content, Redirect}, serde::json::Value};
+use rocket::{fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::Redirect, serde::json::Value};
 use rocket_oauth2::{OAuth2, TokenResponse};
 
 #[derive(Debug)]
@@ -133,22 +133,26 @@ pub fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
                 {
                     "name": "Capture #1",
                     "description": "Wassup baby",
-                    "status": "done"
+                    "status": "done",
+                    "date": "01/02/03"
                 },
                 {
                     "name": "Capture #2",
                     "description": "How you livin'",
-                    "status": "done"
+                    "status": "done",
+                    "date": "01/02/03"
                 },
                 {
                     "name": "Capture #2",
                     "description": "Oh, you haven't seen how mean this dean can be- ean",
-                    "status": "done"
+                    "status": "done",
+                    "date": "01/02/03"
                 },
                 {
                     "name": "Noice",
                     "description": "I forgot everything you said after rectum!",
-                    "status": "in capture"
+                    "status": "in capture",
+                    "date": "01/02/03"
                 }
             ]
         }

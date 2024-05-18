@@ -42,7 +42,7 @@
             </div>
 
             <div id="side_nav_capture_list">
-                <h3 class="project_link in_capture" onclick="load_capture(7)">Proyecto 7</h3>
+                <!-- To be filled dynamically from response of api endpoint -->
             </div>
 
             <div class="horizontal_flex_centered toggleable" onclick="toggle_project_list_view()">
@@ -52,12 +52,7 @@
             </div>
 
             <div id="side_nav_project_list">
-                <h3 class="project_link" onclick="load_project(1)">Proyecto 1</h3>
-                <h3 class="project_link" onclick="load_project(2)">Proyecto 2</h3>
-                <h3 class="project_link" onclick="load_project(3)">Proyecto 3</h3>
-                <h3 class="project_link" onclick="load_project(4)">Proyecto 4</h3>
-                <h3 class="project_link" onclick="load_project(5)">Proyecto 5</h3>
-                <h3 class="project_link" onclick="load_project(6)">Proyecto 6</h3>
+                <!-- To be filled dynamically from response of api endpoint -->
             </div>
 
         </div>
@@ -72,8 +67,81 @@
 
 <script>
 
-    function onLoad() {
+    function makeWithAttributes(name, attrs) {
+        let el = document.createElement(name);
+        for (var key in attrs) {
+            el.setAttribute(key, attrs[key]);
+        }
 
+        return el;
+    }
+
+
+    function getCookie(needle) {
+        return document.cookie.split(';').map(function(cookiestring) {
+            cs = cookiestring.trim().split('=');
+
+            if(cs.length === 2) {
+                return {'name' : cs[0], 'value' : cs[1]};
+            } else {
+                return {'name' : '', 'value' : ''};
+            }
+        })
+        .filter(function(cookieObject) { 
+            return (cookieObject.name === needle);
+        });
+    }
+
+
+    function updateProjectList(user_id) {
+
+        // load project list 
+        let request = new XMLHttpRequest();
+        request.open("GET", "/api/"+user_id+"/project_list")
+        request.onload = () => {
+            let response = JSON.parse(request.responseText);
+
+            if (response["code"] != 200) { return; }
+
+            console.log(response["list"]);
+
+            let project_list_container = document.getElementById("side_nav_project_list");
+            let pending_list_container = document.getElementById("side_nav_capture_list");
+
+
+            for (let project of response["list"]) {
+
+                // <h3 class="project_link" onclick="load_project(1)">Proyecto 1</h3>
+                let status = project["status"]
+                let name   = project["name"];
+
+                let h3 = makeWithAttributes("h3", {"class": "project_link"});
+                h3.innerText = name;
+
+                if (status === "done") {
+                    console.log(h3, name);
+                    project_list_container.appendChild(h3);
+                } else if (status === "in capture") {
+                    pending_list_container.appendChild(h3);
+                }
+            }
+        }
+        request.send();
+    }
+        
+
+    function onLoad() {
+        // load username and set project list
+        let name_cookies = getCookie("name");
+        let user_id      = getCookie("oauth_user_id");
+        if (Object.keys(name_cookies).length == 0 || Object.keys(user_id).length == 0) {
+            console.log("Cookies not found, retrying in 500ms...");
+            setTimeout(function () {
+                onLoad()
+            }, 500);
+        } else {
+            updateProjectList(user_id[0]["value"]);
+        }
 
         // set embed source
         let embed = document.getElementById("body_content");
