@@ -1,5 +1,5 @@
 
--- DROP TABLE Project; DROP Table Users; DROP TABLE AuthProviders; DROP TABLE Image; 
+-- DROP TABLE Projects; DROP Table Users; DROP TABLE AuthProviders; DROP TABLE Image; 
 
 CREATE OR REPLACE TABLE AuthProviders (
     provider_id     INT         auto_increment UNIQUE,
@@ -30,7 +30,7 @@ CREATE OR REPLACE TABLE Users (
 );
 
 
-CREATE TABLE IF NOT EXISTS Project (
+CREATE TABLE IF NOT EXISTS Projects (
     project_id          INT     auto_increment UNIQUE,
     creator_user_id     INT     NOT NULL,
     image_id            INT     NOT NULL,

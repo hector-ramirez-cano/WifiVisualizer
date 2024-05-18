@@ -2,7 +2,7 @@
 use rocket::{data::N, fs::{relative, NamedFile}, http::{Cookie, CookieJar, SameSite}, response::Redirect, serde::json::Value};
 use rocket_oauth2::{OAuth2, TokenResponse};
 
-use crate::model::{db, types};
+use crate::model::{db::{self, get_project_list}, types};
 
 #[derive(Debug)]
 pub struct Google;
@@ -110,7 +110,6 @@ pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Va
     let cookie_id = cookies.get(&OAUTH2_USER_ID);
     let invalid = if let Some(val) = cookie_id {
         // name=value
-        dbg!(&val.to_string().split("=").collect::<Vec<_>>());
         val.to_string().split("=").collect::<Vec<_>>()[1] != user_id
     } else { 
         true //cookie was none
@@ -128,7 +127,7 @@ pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Va
 
     
     let internal_user = db::get_or_attempt_insert_user_id(user_id, "google").await;
-    let internal_user = match internal_user {
+    let user = match internal_user {
         None => {
             return rocket::serde::json::json!(
                 {
@@ -139,10 +138,11 @@ pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Va
             );
         }
 
-        Some(id) => id
+        Some(user) => user
     };
 
-    dbg!(&internal_user);
+    dbg!(&user);
+    dbg!(get_project_list(user).await);
     
 
     // TODO: Consult db
