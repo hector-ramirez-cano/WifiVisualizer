@@ -6,7 +6,7 @@
 
     <!-- TODO: Action -->
     <form action="/home?" method="GET" id="nav_search_bar_form">
-        <input type="text" id="nav_search_bar" name="q" autocomplete="off" placeholder="Busca en tus proyectos" oninput="filter_projects()">
+        <input type="text" id="nav_search_bar" name="q" autocomplete="off" placeholder="Busca en tus proyectos" oninput="filterProjects()">
     </form>
 
     <a href="/logout">
@@ -118,12 +118,12 @@
 
             // filter after body_content is done loading
             document.getElementById("body_content").onload = function () {
-                filter_projects();
+                filterProjects();
             }
         }
     }
 
-    function toggle_list_view(projectList, chevron) {
+    function toggleListView(projectList, chevron) {
         if (projectList.style.transform === "scaleY(0)") {
             projectList.style.transitionDelay = 0;
             projectList.style.transition = "transform 0.0s ease";
@@ -157,22 +157,22 @@
         }
     }
 
-    function toggle_project_list_view() {
+    function toggleProjectListView() {
         let projectList = document.getElementById("side_nav_project_list");
         let chevron = document.getElementById("project_list_chevron");
 
-        toggle_list_view(projectList, chevron);
+        toggleListView(projectList, chevron);
 
     }
 
-    function toggle_capture_list_view() {
+    function toggleCaptureListView() {
         let projectList = document.getElementById("side_nav_capture_list");
         let chevron = document.getElementById("project_capture_list_chevron")
 
-        toggle_list_view(projectList, chevron);
+        toggleListView(projectList, chevron);
     }
 
-    function filter_projects() {
+    function filterProjects() {
         // Si no está en home, no podemos hacer la búsqueda directamente
         if (document.title != "Home") {
             return;
@@ -185,7 +185,7 @@
         let inner = body_content.contentDocument || body_content.contentWindow.document;
         
         let project_grid = inner.getElementById("project_grid");
-        project_grid.onchange = () => { filter_projects(); }
+        project_grid.onchange = () => { filterProjects(); }
         
         let search_param = search_bar.value.toLowerCase().trim();
         
@@ -201,11 +201,11 @@
 
     }
 
-    function load_project(id) {
+    function loadProject(id) {
         window.top.document.location="/view/"+id;
     }
 
-    function load_capture(id) {
+    function loadCapture(id) {
         window.top.document.location="/capture/"+id;
     }
 </script>
@@ -219,7 +219,7 @@
                 <p>Nuevo</p>
             </div>
 
-            <div class="horizontal_flex_centered toggleable" onclick="toggle_capture_list_view()">
+            <div class="horizontal_flex_centered toggleable" onclick="toggleCaptureListView()">
                 <h2>En captura</h2>
 
                 <img id="project_capture_list_chevron" class="icon_small toggleable" alt="chevron" src="/public/res/svg/chevron-bottom.svg">
@@ -229,7 +229,7 @@
                 <!-- To be filled dynamically from response of api endpoint -->
             </div>
 
-            <div class="horizontal_flex_centered toggleable" onclick="toggle_project_list_view()">
+            <div class="horizontal_flex_centered toggleable" onclick="toggleProjectListView()">
                 <h2>Mis Proyectos</h2>
 
                 <img id="project_list_chevron" class="icon_small toggleable" alt="chevron" src="/public/res/svg/chevron-bottom.svg">
