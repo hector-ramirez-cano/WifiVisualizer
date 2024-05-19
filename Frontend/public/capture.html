@@ -11,40 +11,63 @@
     </head>
     <body>
 
-        <div>
-
-            <div id="requirements_list_container">
-
-                <div id="esp32_requirements_display" class="requirements_ready">ESP32</div>
-
-                <div id="esp32cam_requirements_display" class="requirements_ready">ESP32 Cam gurl!</div>
-
-                <div id="backend_requirements_display" class="requirements_not_ready">Backend</div>
-
-            </div>
-
-            <div id="capture_workbench">
-                <div id="capture_parameter_list" class="vertical_flex_centered">
-                    <div class="capture_paramter_item">Parámetro 1 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
-                    <div class="capture_paramter_item">Parámetro 2 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
-                    <div class="capture_paramter_item">Parámetro 3 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
-                    <div class="capture_paramter_item">Parámetro 4 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
-                    <div class="capture_paramter_item">Parámetro 5 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
-                    <div class="capture_paramter_item">Parámetro 6 <img class="capture_parameter_tip" alt="Tip" src="/public/res/svg/question-mark.svg" title="tooltip"></div>
+        <div id="main_container">
+            <div id="workbench_container">
+                <div id="requirements_list_container">
+                    <div id="esp32_requirements_display" class="requirements_ready">ESP32</div>
+                    <div id="esp32cam_requirements_display" class="requirements_ready">ESP32 Cam gurl!</div>
+                    <div id="backend_requirements_display" class="requirements_not_ready">Backend</div>
                 </div>
-
-                <div class="separator"></div>
-
-                <div id="capture_console">
-
-                    Console
+                <div id="capture_workbench">
+                    <div id="capture_parameter_list">
+                        <div class="capture_paramter_item">
+                            <span class="capture_parameter_label">Step X</span>
+            
+                            <input type="range" min="1" max="180" value="5" class="slider" id="step_size_x_slider"
+                                oninput="document.getElementById('step_size_x_banner').value = this.value;"
+                            >
+                            <input type="number" min="1" max="180" value="5"  class="capture_parameter_label capture_parameter_input" id="step_size_x_banner"
+                                oninput = "document.getElementById('step_size_x_slider').value = this.value"
+                            >
+            
+                            <span class="capture_parameter_unit_label"> °</span>
+                        </div>
+            
+                        <div class="capture_paramter_item">
+                            <span class="capture_parameter_label">Step Y</span>
+            
+                            <input type="range" min="1" max="20" value="5" class="slider" id="step_size_y_slider"
+                                oninput="document.getElementById('step_size_y_banner').value = this.value;"
+                            >
+                            <input type="number" min="1" max="20" value="5"  class="capture_parameter_label capture_parameter_input" id="step_size_y_banner"
+                                oninput = "document.getElementById('step_size_y_slider').value = this.value"
+                            >
+            
+                            <span class="capture_parameter_unit_label">°</span>
+                        </div>
+                        <div class="capture_paramter_item">
+                            <span class="capture_parameter_label">Medidas p. paso</span>
+            
+                            <input type="range" min="1" max="20" value="3" class="slider" id="measurements_per_step_slider"
+                                oninput="document.getElementById('measurements_per_step_banner').value = this.value;"
+                            >
+                            <input type="number" min="1" max="20" value="3"  class="capture_parameter_label capture_parameter_input" id="measurements_per_step_banner"
+                                oninput = "document.getElementById('measurements_per_step_slider').value = this.value"
+                            >
+            
+                        </div>
+            
+                    </div>
+                    <div class="separator"></div>
+                    <div id="capture_console">
+                        Console
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- TODO: Acción -->
-        <div id="capture_button">
-            Comenzar Captura
+            <!-- TODO: Acción -->
+            <div id="capture_button">
+                Comenzar Captura
+            </div>
         </div>
     </body>
 </html>
