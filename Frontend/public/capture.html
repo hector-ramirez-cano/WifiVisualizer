@@ -14,8 +14,8 @@
         <div id="main_container">
             <div id="workbench_container">
                 <div id="requirements_list_container">
-                    <div id="esp32_requirements_display" class="requirements_ready">ESP32</div>
-                    <div id="esp32cam_requirements_display" class="requirements_ready">ESP32 Cam gurl!</div>
+                    <div id="esp32_requirements_display" class="requirements_not_ready">ESP32</div>
+                    <div id="esp32cam_requirements_display" class="requirements_not_ready">ESP32 Cam gurl!</div>
                     <div id="backend_requirements_display" class="requirements_not_ready">Backend</div>
                 </div>
                 <div id="capture_workbench">
@@ -23,10 +23,10 @@
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Step X</span>
             
-                            <input type="range" min="1" max="180" value="5" class="slider" id="step_size_x_slider"
+                            <input type="range" min="1" max="180" value="1" class="slider" id="step_size_x_slider"
                                 oninput="document.getElementById('step_size_x_banner').value = this.value;"
                             >
-                            <input type="number" min="1" max="180" value="5"  class="capture_parameter_label capture_parameter_input" id="step_size_x_banner"
+                            <input type="number" min="1" max="180" value="1"  class="capture_parameter_label capture_parameter_input" id="step_size_x_banner"
                                 oninput = "document.getElementById('step_size_x_slider').value = this.value"
                             >
             
@@ -36,10 +36,10 @@
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Step Y</span>
             
-                            <input type="range" min="1" max="20" value="5" class="slider" id="step_size_y_slider"
+                            <input type="range" min="1" max="20" value="1" class="slider" id="step_size_y_slider"
                                 oninput="document.getElementById('step_size_y_banner').value = this.value;"
                             >
-                            <input type="number" min="1" max="20" value="5"  class="capture_parameter_label capture_parameter_input" id="step_size_y_banner"
+                            <input type="number" min="1" max="20" value="1"  class="capture_parameter_label capture_parameter_input" id="step_size_y_banner"
                                 oninput = "document.getElementById('step_size_y_slider').value = this.value"
                             >
             
@@ -48,10 +48,10 @@
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Medidas p. paso</span>
             
-                            <input type="range" min="1" max="20" value="3" class="slider" id="measurements_per_step_slider"
+                            <input type="range" min="1" max="20" value="1" class="slider" id="measurements_per_step_slider"
                                 oninput="document.getElementById('measurements_per_step_banner').value = this.value;"
                             >
-                            <input type="number" min="1" max="20" value="3"  class="capture_parameter_label capture_parameter_input" id="measurements_per_step_banner"
+                            <input type="number" min="1" max="20" value="1"  class="capture_parameter_label capture_parameter_input" id="measurements_per_step_banner"
                                 oninput = "document.getElementById('measurements_per_step_slider').value = this.value"
                             >
             
@@ -73,8 +73,52 @@
 </html>
 
 <script>
+    function requestConnectionStatus() {
+        let request = new XMLHttpRequest();
+            request.open("GET", "/api/connection_status");
+            request.onload = () => { 
+
+                console.log(request.response);
+                let json = JSON.parse(request.responseText)["status"];
+                
+                updateConnectionStatus(json["esp32"], json["esp32_cam"], json["backend"])
+            }
+        request.send();
+    }
+
+    function updateConnectionStatus(esp32_status, esp32_cam_status, backend_status) {
+        displays = [
+            [esp32_cam_status, "esp32cam_requirements_display"],
+            [esp32_status    , "esp32_requirements_display"   ],
+            [backend_status  , "backend_requirements_display" ],
+        ]
+
+        let every_ready = true;
+        for (let elem of displays) {
+            if (elem[0]["up"] && elem[0]["ready"]) {
+                let display = document.getElementById(elem[1]);
+
+                display.classList.add("requirements_ready");
+                display.classList.remove("requirements_not_ready");
+            } else {
+                every_ready = false;
+            }
+        }
+
+        let capture_button = document.getElementById("capture_button");
+        if (!every_ready) {
+            capture_button.style.cursor = "not-allowed";
+
+            setTimeout(requestConnectionStatus, 2000);
+        } else {
+            capture_button.style.cursor = "pointer";    
+        }
+    }
+
     function onLoad() {
-        window.top.document.title = "Capture"
+        window.top.document.title = "Capture";
+
+        requestConnectionStatus();
     }
     onLoad();
 </script>

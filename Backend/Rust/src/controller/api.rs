@@ -178,3 +178,25 @@ pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Va
         }
     )
 }
+
+#[get("/api/connection_status")]
+pub async fn api_get_connection_status() -> Value {
+    rocket::serde::json::json! (
+        {
+            "status": {
+                "esp32_cam": {
+                    "up": true,
+                    "ready": true
+                },
+                "esp32": {
+                    "up": true,
+                    "ready": true
+                },
+                "backend": {
+                    "up": true,
+                    "ready": true
+                }
+            }
+        }
+    )
+}
