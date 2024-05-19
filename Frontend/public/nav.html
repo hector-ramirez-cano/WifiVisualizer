@@ -190,7 +190,7 @@
         let search_param = search_bar.value.toLowerCase().trim();
         
         for (let child of project_grid.children) {
-            let title = child.children[1].title.toLowerCase();
+            let title = child.children[0].title.toLowerCase();
             let date = child.children[2].innerText.toLowerCase();
             if (title.includes(search_param) || date.includes(search_param)) {
                 child.style.display = "block";
