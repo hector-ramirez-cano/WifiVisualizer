@@ -104,6 +104,8 @@
 
                 appendChildren(parent, [image, title, date])
                 project_list_container.appendChild(parent);
+
+                project_list_container.onchange();
             }
         }
         request.send();

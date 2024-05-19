@@ -86,8 +86,12 @@ a:link{
     text-decoration: none;
 }
 
+#nav_search_bar_form {
+    display: flex;
+    flex-grow: 1;
+}
 
-#nav_search_bar {
+#nav_search_bar  {
     display: flex;
     flex-direction: row;
     align-items: center;

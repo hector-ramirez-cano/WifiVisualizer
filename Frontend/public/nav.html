@@ -5,7 +5,9 @@
     <h1 class="vertical_centered">Wifi visualizer</h1>
 
     <!-- TODO: Action -->
-    <input type="text" id="nav_search_bar" name="search_bar_input" autocomplete="off" placeholder="Busca en tus proyectos">
+    <form action="/home?" method="GET" id="nav_search_bar_form">
+        <input type="text" id="nav_search_bar" name="q" autocomplete="off" placeholder="Busca en tus proyectos" oninput="filter_projects()">
+    </form>
 
     <a href="/logout">
         <div id="logout_button">
@@ -25,6 +27,194 @@
 
     <title>Navigation Page</title>
 </head>
+
+
+<script>
+
+    function makeWithAttributes(name, attrs) {
+        let el = document.createElement(name);
+        for (var key in attrs) {
+            el.setAttribute(key, attrs[key]);
+        }
+
+        return el;
+    }
+
+
+    function getCookie(needle) {
+        return document.cookie.split(';').map(function(cookiestring) {
+            cs = cookiestring.trim().split('=');
+
+            if(cs.length === 2) {
+                return {'name' : cs[0], 'value' : cs[1]};
+            } else {
+                return {'name' : '', 'value' : ''};
+            }
+        })
+        .filter(function(cookieObject) {
+            return (cookieObject.name === needle);
+        });
+    }
+
+
+    function updateProjectList(user_id) {
+
+        // load project list
+        let request = new XMLHttpRequest();
+        request.open("GET", "/api/"+user_id+"/project_list")
+        request.onload = () => {
+            let response = JSON.parse(request.responseText);
+
+            if (response["code"] != 200) { return; }
+
+            let project_list_container = document.getElementById("side_nav_project_list");
+            let pending_list_container = document.getElementById("side_nav_capture_list");
+
+
+            for (let project of response["list"]) {
+
+                // <h3 class="project_link" onclick="load_project(1)">Proyecto 1</h3>
+                let status = project["status"]
+                let name   = project["name"];
+
+                let h3 = makeWithAttributes("h3", {"class": "project_link clickable"});
+                h3.innerText = name;
+
+                if (status === "done") {
+                    project_list_container.appendChild(h3);
+                } else if (status === "in capture") {
+                    pending_list_container.appendChild(h3);
+                }
+            }
+        }
+        request.send();
+    }
+
+
+    function onLoad() {
+        // load username and set project list
+        let name_cookies = getCookie("name");
+        let user_id      = getCookie("oauth_user_id");
+        if (Object.keys(user_id).length == 0) {
+            console.log("Cookies not found, retrying in 2000ms...", name_cookies, user_id);
+            setTimeout(function () {
+                onLoad()
+            }, 2000);
+        } else {
+            updateProjectList(user_id[0]["value"]);
+        }
+
+        // set embed source
+        let embed = document.getElementById("body_content");
+        var path = "/public/" + window.location.pathname + ".html";
+        embed.setAttribute("src", path)
+
+        // filter if query is set
+        let params = new URLSearchParams(document.location.search);
+        let query = params.get("q");
+        if (query != null) {
+            // Set value in navbar
+            document.getElementById("nav_search_bar").value = query;
+
+            // filter after body_content is done loading
+            document.getElementById("body_content").onload = function () {
+                let search_bar = document.getElementById("nav_search_bar");
+                let body_content = document.getElementById("body_content");
+                let inner = body_content.contentDocument || body_content.contentWindow.document;
+                
+                let project_grid = inner.getElementById("project_grid");
+                project_grid.onchange = () => {
+                    filter_projects();
+                }
+            }
+        }
+    }
+
+    function toggle_list_view(projectList, chevron) {
+        if (projectList.style.transform === "scaleY(0)") {
+            projectList.style.transitionDelay = 0;
+            projectList.style.transition = "transform 0.0s ease";
+            projectList.style.transform = "scaleY(1)";
+
+            for (var i = 0 ; i < projectList.children.length; i++) {
+                let child = projectList.children[i];
+
+                child.style.transition= "transform 0.3s ease"
+                child.style.transform = "scaleX(1)";
+                child.style.transitionDelay = i * 50 + 10 + "ms";
+            }
+            chevron.style.transform = "rotate(0deg)";
+        }
+        else  {
+
+            projectList.style.transform = "scaleY(0)";
+            projectList.style.transition = "transform 0.3s ease";
+            projectList.style.transitionDelay = (projectList.children.length * 50 + 10 + 290) + "ms";
+
+            for (var i = 0 ; i < projectList.children.length; i++) {
+                let child = projectList.children[i];
+
+                child.style.transform = "scaleX(0)";
+                child.style.transition= "transform 0.3s ease"
+                child.style.transitionDelay = (projectList.children.length - i) * 50 + 10 + "ms";
+
+            }
+
+            chevron.style.transform = "rotate(180deg)";
+        }
+    }
+
+    function toggle_project_list_view() {
+        let projectList = document.getElementById("side_nav_project_list");
+        let chevron = document.getElementById("project_list_chevron");
+
+        toggle_list_view(projectList, chevron);
+
+    }
+
+    function toggle_capture_list_view() {
+        let projectList = document.getElementById("side_nav_capture_list");
+        let chevron = document.getElementById("project_capture_list_chevron")
+
+        toggle_list_view(projectList, chevron);
+    }
+
+    function filter_projects() {
+        // Si no está en home, no podemos hacer la búsqueda directamente
+        if (document.title != "Home") {
+            return;
+        }
+
+        // dinámicamente mostramos al usuario los projectos con ese nombre
+        let search_bar = document.getElementById("nav_search_bar");
+        let body_content = document.getElementById("body_content");
+
+        
+        let inner = body_content.contentDocument || body_content.contentWindow.document;
+        
+        let project_grid = inner.getElementById("project_grid");
+        
+        let search_param = search_bar.value.toLowerCase().trim();
+        
+        for (let child of project_grid.children) {
+            let title = child.children[1].title.toLowerCase();
+            if (title.includes(search_param)) {
+                child.style.display = "block";
+            } else {
+                child.style.display = "none";
+            }
+        }
+
+    }
+
+    function load_project(id) {
+        window.top.document.location="/view/"+id;
+    }
+
+    function load_capture(id) {
+        window.top.document.location="/capture/"+id;
+    }
+</script>
 
 <body class="vertical_flex_centered" onload="onLoad()">
 
@@ -57,149 +247,10 @@
 
         </div>
 
-        <embed title="Home" id="body_content" src="">
+        <iframe title="Home" id="body_content" src="">
 
     </div>
 
 </body>
 
 </html>
-
-<script>
-
-    function makeWithAttributes(name, attrs) {
-        let el = document.createElement(name);
-        for (var key in attrs) {
-            el.setAttribute(key, attrs[key]);
-        }
-
-        return el;
-    }
-
-
-    function getCookie(needle) {
-        return document.cookie.split(';').map(function(cookiestring) {
-            cs = cookiestring.trim().split('=');
-
-            if(cs.length === 2) {
-                return {'name' : cs[0], 'value' : cs[1]};
-            } else {
-                return {'name' : '', 'value' : ''};
-            }
-        })
-        .filter(function(cookieObject) { 
-            return (cookieObject.name === needle);
-        });
-    }
-
-
-    function updateProjectList(user_id) {
-
-        // load project list 
-        let request = new XMLHttpRequest();
-        request.open("GET", "/api/"+user_id+"/project_list")
-        request.onload = () => {
-            let response = JSON.parse(request.responseText);
-
-            if (response["code"] != 200) { return; }
-
-            let project_list_container = document.getElementById("side_nav_project_list");
-            let pending_list_container = document.getElementById("side_nav_capture_list");
-
-
-            for (let project of response["list"]) {
-
-                // <h3 class="project_link" onclick="load_project(1)">Proyecto 1</h3>
-                let status = project["status"]
-                let name   = project["name"];
-
-                let h3 = makeWithAttributes("h3", {"class": "project_link clickable"});
-                h3.innerText = name;
-
-                if (status === "done") {
-                    project_list_container.appendChild(h3);
-                } else if (status === "in capture") {
-                    pending_list_container.appendChild(h3);
-                }
-            }
-        }
-        request.send();
-    }
-        
-
-    function onLoad() {
-        // load username and set project list
-        let name_cookies = getCookie("name");
-        let user_id      = getCookie("oauth_user_id");
-        if (Object.keys(user_id).length == 0) {
-            console.log("Cookies not found, retrying in 2000ms...", name_cookies, user_id);
-            setTimeout(function () {
-                onLoad()
-            }, 2000);
-        } else {
-            updateProjectList(user_id[0]["value"]);
-        }
-
-        // set embed source
-        let embed = document.getElementById("body_content");
-        var path = "/public/" + window.location.pathname + ".html";
-        embed.setAttribute("src", path)
-    }
-
-    function toggle_list_view(projectList, chevron) {
-        if (projectList.style.transform === "scaleY(0)") {
-            projectList.style.transitionDelay = 0;
-            projectList.style.transition = "transform 0.0s ease";
-            projectList.style.transform = "scaleY(1)";
-
-            for (var i = 0 ; i < projectList.children.length; i++) {
-                let child = projectList.children[i];
-
-                child.style.transition= "transform 0.3s ease"
-                child.style.transform = "scaleX(1)";
-                child.style.transitionDelay = i * 50 + 10 + "ms";
-            }
-            chevron.style.transform = "rotate(0deg)";
-        }
-        else  {
-            
-            projectList.style.transform = "scaleY(0)";
-            projectList.style.transition = "transform 0.3s ease";
-            projectList.style.transitionDelay = (projectList.children.length * 50 + 10 + 290) + "ms";
-
-            for (var i = 0 ; i < projectList.children.length; i++) {
-                let child = projectList.children[i];
-
-                child.style.transform = "scaleX(0)";
-                child.style.transition= "transform 0.3s ease"
-                child.style.transitionDelay = (projectList.children.length - i) * 50 + 10 + "ms";
-                
-            }
-
-            chevron.style.transform = "rotate(180deg)";
-        }
-    }
-
-    function toggle_project_list_view() {
-        let projectList = document.getElementById("side_nav_project_list");
-        let chevron = document.getElementById("project_list_chevron");
-
-        toggle_list_view(projectList, chevron);
-
-    }
-
-    function toggle_capture_list_view() {
-        let projectList = document.getElementById("side_nav_capture_list");
-        let chevron = document.getElementById("project_capture_list_chevron")
-
-        toggle_list_view(projectList, chevron);
-    }
-
-    function load_project(id) {
-        window.top.document.location="/view/"+id;
-    }
-
-    function load_capture(id) {
-        window.top.document.location="/capture/"+id;
-    }
-</script>
