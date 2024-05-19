@@ -118,14 +118,7 @@
 
             // filter after body_content is done loading
             document.getElementById("body_content").onload = function () {
-                let search_bar = document.getElementById("nav_search_bar");
-                let body_content = document.getElementById("body_content");
-                let inner = body_content.contentDocument || body_content.contentWindow.document;
-                
-                let project_grid = inner.getElementById("project_grid");
-                project_grid.onchange = () => {
-                    filter_projects();
-                }
+                filter_projects();
             }
         }
     }
@@ -188,17 +181,18 @@
         // dinámicamente mostramos al usuario los projectos con ese nombre
         let search_bar = document.getElementById("nav_search_bar");
         let body_content = document.getElementById("body_content");
-
         
         let inner = body_content.contentDocument || body_content.contentWindow.document;
         
         let project_grid = inner.getElementById("project_grid");
+        project_grid.onchange = () => { filter_projects(); }
         
         let search_param = search_bar.value.toLowerCase().trim();
         
         for (let child of project_grid.children) {
             let title = child.children[1].title.toLowerCase();
-            if (title.includes(search_param)) {
+            let date = child.children[2].innerText.toLowerCase();
+            if (title.includes(search_param) || date.includes(search_param)) {
                 child.style.display = "block";
             } else {
                 child.style.display = "none";
