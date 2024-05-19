@@ -34,10 +34,10 @@ fn launch() -> _ {
         controller::auth::google_login,
         controller::auth::google_auth_callback,
 
-        controller::api::api_get_project_list,
-        controller::api::api_get_connection_status,
-
-        ])
+        controller::api::get_project_list,
+        controller::api::get_connection_status,
+        controller::api::post_capture_request,
+    ])
     .attach(OAuth2::<controller::auth::Google>::fairing("google"))
 }
 

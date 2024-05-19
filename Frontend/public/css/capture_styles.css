@@ -125,9 +125,9 @@ body {
 }
 
 #capture_button {
-    margin: 2em 1em 1em 1em;
+    margin: 1em;
     padding: 1em;
-    height: 1em;
+    height: 3em;
     text-align: center;
     
     background-color: #d5e8d4;

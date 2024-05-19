@@ -19,11 +19,11 @@
                     <div id="backend_requirements_display" class="requirements_not_ready">Backend</div>
                 </div>
                 <div id="capture_workbench">
-                    <div id="capture_parameter_list">
+                    <form id="capture_parameter_list" action="/api/start" method="POST" target=""> <!--Change method to post-->
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Step X</span>
             
-                            <input type="range" min="1" max="180" value="1" class="slider" id="step_size_x_slider"
+                            <input type="range" min="1" max="180" value="1" class="slider"  name="step_x_deg" id="step_size_x_slider"
                                 oninput="document.getElementById('step_size_x_banner').value = this.value;"
                             >
                             <input type="number" min="1" max="180" value="1"  class="capture_parameter_label capture_parameter_input" id="step_size_x_banner"
@@ -36,7 +36,7 @@
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Step Y</span>
             
-                            <input type="range" min="1" max="20" value="1" class="slider" id="step_size_y_slider"
+                            <input type="range" min="1" max="20" value="1" class="slider" name="step_y_deg" id="step_size_y_slider"
                                 oninput="document.getElementById('step_size_y_banner').value = this.value;"
                             >
                             <input type="number" min="1" max="20" value="1"  class="capture_parameter_label capture_parameter_input" id="step_size_y_banner"
@@ -48,7 +48,7 @@
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Medidas p. paso</span>
             
-                            <input type="range" min="1" max="20" value="1" class="slider" id="measurements_per_step_slider"
+                            <input type="range" min="1" max="20" value="1" class="slider"  name="measurements_per_step" id="measurements_per_step_slider"
                                 oninput="document.getElementById('measurements_per_step_banner').value = this.value;"
                             >
                             <input type="number" min="1" max="20" value="1"  class="capture_parameter_label capture_parameter_input" id="measurements_per_step_banner"
@@ -57,7 +57,7 @@
             
                         </div>
             
-                    </div>
+                    </form>
                     <div class="separator"></div>
                     <div id="capture_console">
                         Console
@@ -65,9 +65,7 @@
                 </div>
             </div>
             <!-- TODO: Acción -->
-            <div id="capture_button">
-                Comenzar Captura
-            </div>
+            <input type="submit" form="capture_parameter_list" value="Comenzar Captura" id="capture_button">
         </div>
     </body>
 </html>

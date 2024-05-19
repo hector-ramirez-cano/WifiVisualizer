@@ -1,7 +1,9 @@
 
+use rocket::form::Form;
+use rocket::response::Redirect;
 use rocket::{http::CookieJar, serde::json::Value};
 
-use crate::model::db::{self, get_project_list};
+use crate::model::db;
 
 
 pub const OAUTH2_TOKEN_COOKIE : & 'static str = "oauth_token";
@@ -9,7 +11,7 @@ pub const OAUTH2_USER_ID      : & 'static str = "oauth_user_id";
 
 
 #[get("/api/<user_id>/project_list")]
-pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
+pub async fn get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
 
     let cookie_id = cookies.get(&OAUTH2_USER_ID);
     let invalid = if let Some(val) = cookie_id {
@@ -46,7 +48,7 @@ pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Va
     };
 
     dbg!(&user);
-    dbg!(get_project_list(user).await);
+    dbg!(db::get_project_list(user).await);
     
 
     // TODO: Consult db
@@ -84,7 +86,7 @@ pub async fn api_get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Va
 }
 
 #[get("/api/connection_status")]
-pub async fn api_get_connection_status() -> Value {
+pub async fn get_connection_status() -> Value {
     rocket::serde::json::json! (
         {
             "status": {
@@ -103,4 +105,23 @@ pub async fn api_get_connection_status() -> Value {
             }
         }
     )
+}
+
+#[derive(FromForm, Debug)]
+struct CaptureRequest {
+    #[field(validate = range(1..=180))]
+    step_x_deg: u32,
+
+    #[field(validate = range(1..=20))]
+    step_y_deg: u32,
+
+    #[field(validate = range(1..=20))]
+    measurements_per_step: u8
+}
+
+#[post("/api/start", data = "<params>")]
+pub fn post_capture_request(params: Form<CaptureRequest>) -> Redirect {
+    println!("{:?}", params);
+
+    Redirect::to("/capture")
 }
