@@ -108,7 +108,7 @@ pub async fn get_connection_status() -> Value {
 }
 
 #[derive(FromForm, Debug)]
-struct CaptureRequest {
+pub struct CaptureRequest {
     #[field(validate = range(1..=180))]
     step_x_deg: u32,
 
@@ -120,8 +120,6 @@ struct CaptureRequest {
 }
 
 #[post("/api/start", data = "<params>")]
-pub fn post_capture_request(params: Form<CaptureRequest>) -> Redirect {
+pub fn post_capture_request(params: Form<CaptureRequest>) -> () {
     println!("{:?}", params);
-
-    Redirect::to("/capture")
 }

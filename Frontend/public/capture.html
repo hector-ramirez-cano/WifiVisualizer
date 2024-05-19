@@ -19,7 +19,7 @@
                     <div id="backend_requirements_display" class="requirements_not_ready">Backend</div>
                 </div>
                 <div id="capture_workbench">
-                    <form id="capture_parameter_list" action="/api/start" method="POST" target=""> <!--Change method to post-->
+                    <form id="capture_parameter_list" action="/api/start" method="POST"> <!--Stopped by submitForm() to avoid redirect-->
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Step X</span>
             
@@ -71,12 +71,30 @@
 </html>
 
 <script>
+    function submitForm(event) {
+
+        let step_x_deg = document.getElementById("step_size_x_slider").value;
+        let step_y_deg = document.getElementById("step_size_y_slider").value;
+        let measurements_per_step = document.getElementById("measurements_per_step_slider").value;
+
+        fetch("/api/start", {
+            method: "POST",
+            headers: {
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "step_x_deg="+step_x_deg + "&step_y_deg="+step_y_deg + "&measurements_per_step="+measurements_per_step
+        })
+
+        event.preventDefault();
+
+        return false;
+    }
+
     function requestConnectionStatus() {
         let request = new XMLHttpRequest();
             request.open("GET", "/api/connection_status");
             request.onload = () => { 
-
-                console.log(request.response);
                 let json = JSON.parse(request.responseText)["status"];
                 
                 updateConnectionStatus(json["esp32"], json["esp32_cam"], json["backend"])
@@ -117,6 +135,8 @@
         window.top.document.title = "Capture";
 
         requestConnectionStatus();
+
+        document.getElementById("capture_parameter_list").addEventListener("submit", submitForm);
     }
     onLoad();
 </script>
