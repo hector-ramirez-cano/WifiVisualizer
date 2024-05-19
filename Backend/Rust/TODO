@@ -1,0 +1,5 @@
+Remover datos Dummy de get_project_list sobre el api endpoint /api/<user_id>/get_project_list
+Consola web
+Verificación de conexión con ESP32 y ESPCAM
+parámetros de vista
+reconexión con dispositivos físicos
