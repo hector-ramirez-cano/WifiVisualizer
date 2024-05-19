@@ -23,22 +23,22 @@ fn launch() -> _ {
     rocket::build()
     .mount("/public", fileserver)
     .mount("/", routes![
-        controller::api::index,
-        controller::api::view,
-        controller::api::home,
-        controller::api::capture,
-        controller::api::login,
-        controller::api::logout,
-        controller::api::invalid_msg,
+        controller::web::index,
+        controller::web::view,
+        controller::web::home,
+        controller::web::capture,
+        controller::web::login,
+        controller::web::logout,
+        controller::web::invalid_msg,
 
-        controller::api::google_login,
-        controller::api::google_auth_callback,
+        controller::auth::google_login,
+        controller::auth::google_auth_callback,
 
         controller::api::api_get_project_list,
         controller::api::api_get_connection_status,
 
         ])
-    .attach(OAuth2::<controller::api::Google>::fairing("google"))
+    .attach(OAuth2::<controller::auth::Google>::fairing("google"))
 }
 
 fn foo() { 
