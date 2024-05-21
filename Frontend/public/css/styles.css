@@ -74,6 +74,8 @@ hr {
 }
 
 nav {
+    min-height: 60px;
+
     display:flex;
     flex-direction: column;
     padding: 0 var(--forced-side-padding);
