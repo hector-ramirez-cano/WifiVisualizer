@@ -115,13 +115,23 @@ body {
 
 #capture_console {
     flex-grow: 49.8;
+    display: flex;
+    flex-direction: column-reverse;
+
+    max-height: 75vh;
 
     margin: 1em;
     padding: 1em;
 
     background-color: #232627;
+    overflow: scroll;
+    overflow-y: auto;
+}
+
+.cli_line {
     color: #fcfcfc;
     font-family: "Noto Sans Mono", monospace;
+    
 }
 
 #capture_button {

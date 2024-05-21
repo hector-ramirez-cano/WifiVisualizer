@@ -15,7 +15,7 @@
             <div id="workbench_container">
                 <div id="requirements_list_container">
                     <div id="esp32_requirements_display" class="requirements_not_ready">ESP32</div>
-                    <div id="esp32cam_requirements_display" class="requirements_not_ready">ESP32 Cam gurl!</div>
+                    <div id="esp32cam_requirements_display" class="requirements_not_ready">ESP32 Cam</div>
                     <div id="backend_requirements_display" class="requirements_not_ready">Backend</div>
                 </div>
                 <div id="capture_workbench">
@@ -60,17 +60,21 @@
                     </form>
                     <div class="separator"></div>
                     <div id="capture_console">
-                        Console
+                        <!-- Filled dinamically by api endpoint requests for new lines on updateCommandLineOutput -->
                     </div>
                 </div>
             </div>
-            <!-- TODO: Acción -->
             <input type="submit" form="capture_parameter_list" value="Comenzar Captura" id="capture_button">
         </div>
     </body>
 </html>
 
 <script>
+
+    function getPosition(string, subString, index) {
+        return string.split(subString, index).join(subString).length;
+    }
+
     function submitForm(event) {
 
         let step_x_deg = document.getElementById("step_size_x_slider").value;
@@ -100,6 +104,41 @@
                 updateConnectionStatus(json["esp32"], json["esp32_cam"], json["backend"])
             }
         request.send();
+    }
+
+    function updateCommandLineOutput() {
+        let request = new XMLHttpRequest();
+            request.open("GET", "/api/terminal/0");
+            request.onload = () => {
+                if (request.status != 200) {
+                    return;
+                }
+
+                let new_lines = JSON.parse(request.responseText)["lines"];
+
+                let cli = document.getElementById("capture_console");
+
+                // Remove old lines if needed
+                let max_lines = 300;
+                if (cli.children.length + new_lines.length > max_lines) {
+                    let to_remove = (cli.children.length + new_lines.length) - max_lines;
+                    for (let i = 0 ; i < to_remove; i++) {
+                        cli.removeChild(cli.lastElementChild);
+                    }
+                }
+
+                for ( var i = new_lines.length; i > 0; i--) {   
+                // for (var line of new_lines) {
+                    let p = document.createElement("p");
+                    p.innerHTML = new_lines[i-1];
+                    p.classList.add("cli_line");
+                    cli.insertBefore(p, cli.childNodes[0]);
+                }
+
+
+                setTimeout(updateCommandLineOutput, 100);
+            }
+            request.send();
     }
 
     function updateConnectionStatus(esp32_status, esp32_cam_status, backend_status) {
@@ -135,6 +174,7 @@
         window.top.document.title = "Capture";
 
         requestConnectionStatus();
+        updateCommandLineOutput();
 
         document.getElementById("capture_parameter_list").addEventListener("submit", submitForm);
     }

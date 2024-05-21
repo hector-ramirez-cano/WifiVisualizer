@@ -1,4 +1,5 @@
 
+use rand::Rng;
 use rocket::form::Form;
 use rocket::response::Redirect;
 use rocket::{http::CookieJar, serde::json::Value};
@@ -10,7 +11,7 @@ pub const OAUTH2_TOKEN_COOKIE : & 'static str = "oauth_token";
 pub const OAUTH2_USER_ID      : & 'static str = "oauth_user_id";
 
 
-#[get("/api/<user_id>/project_list")]
+#[get("/api/<user_id>/project_list", rank=10)]
 pub async fn get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
 
     let cookie_id = cookies.get(&OAUTH2_USER_ID);
@@ -75,7 +76,7 @@ pub async fn get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value 
                     "date": "07/08/09"
                 },
                 {
-                    "name": "Noice",
+                    "name": "Test #1",
                     "description": "I forgot everything you said after rectum!",
                     "status": "in capture",
                     "date": "10/11/12"
@@ -105,6 +106,22 @@ pub async fn get_connection_status() -> Value {
             }
         }
     )
+}
+
+#[get("/api/terminal/<start>", rank=1)]
+pub async fn get_terminal_contents(start: u64) -> Value {
+    rocket::serde::json::json! {
+        {
+            "lines": [
+                // "salida",
+                // "por consola",
+                //"del backend",
+                rand::thread_rng().gen_range(0..100000),
+                rand::thread_rng().gen_range(0..100000),
+                rand::thread_rng().gen_range(0..100000),
+            ]
+        }
+    }
 }
 
 #[derive(FromForm, Debug)]
