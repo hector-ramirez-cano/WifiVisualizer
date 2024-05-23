@@ -34,6 +34,21 @@ impl Severity {
     }
 }
 
+impl TryFrom<u64> for Severity {
+    type Error = ();
+
+    fn try_from(value: u64) -> Result<Self, Self::Error> {
+        match value {
+            value if value == Severity::VERBOSE as u64 => Ok(Severity::VERBOSE),
+            value if value == Severity::DEBUG   as u64 => Ok(Severity::DEBUG  ),
+            value if value == Severity::INFO    as u64 => Ok(Severity::INFO   ),
+            value if value == Severity::WARNING as u64 => Ok(Severity::WARNING),
+            value if value == Severity::ERROR   as u64 => Ok(Severity::ERROR  ),
+            _ => Err(())
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Log {
@@ -54,8 +69,8 @@ impl Logger {
         }
     }
 
-    pub fn log(&mut self, severity: Severity, msg: String) {
-        self.logs.push(Log {severity, msg});
+    pub fn log(&mut self, severity: Severity, msg: &str) {
+        self.logs.push(Log {severity, msg : msg.to_string()});
     }
 
     pub fn get_logs(&self) -> &Vec<Log> {
@@ -65,6 +80,6 @@ impl Logger {
 
 pub fn log(logger : &mut Arc<Mutex<Logger>>, severity : Severity, msg: &str) {
     if let Ok(mut handle) = logger.lock() {
-        handle.log(severity, msg.to_string());
+        handle.log(severity, msg);
     }
 }

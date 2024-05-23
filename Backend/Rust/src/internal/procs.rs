@@ -1,11 +1,14 @@
 // std crates
+use std::sync::{Arc, Mutex};
 
 // External crates
 use serial::prelude::*;
+use rocket::serde::json;
 
-use crate::internal::frame_ops::{self, tx_frame_blocking};
 // own crates
-pub use crate::internal::frame_type::*;
+use crate::internal::frame_ops::{self, tx_frame_blocking};
+use crate::internal::logger::{log, Severity, Logger};
+use crate::internal::frame_type::*;
 
 pub fn proc_tx_reset<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack) -> Result<(), FrameError> {
     
@@ -108,4 +111,34 @@ pub fn proc_rx_request_ack<T: SerialPort>(port: &mut T, frame_stack: &mut FrameS
     frame_stack.set_remote_ackd_frame_id(new_most_recent_ack);
 
     Ok(())
+}
+
+pub fn proc_rx_logs_process_log(logger : &mut std::sync::MutexGuard<Logger>, log: &json::Value) -> Option<()> {
+    let log = log.as_object()?;
+    
+    let severity =  Severity::try_from( log.get("severity")?.as_number()?.as_u64()? ).ok()?;
+    let msg = log.get("msg")?.as_str()?;
+
+    logger.log(severity, msg);
+
+
+    Some(())
+    
+}
+
+pub fn proc_rx_logs (logger : &mut Arc<Mutex<Logger>>, logs: &json::Value) -> Option<()> {
+    let logs = match logs {
+        json::Value::Object(root) => root,
+        _ => { return None; /* Ignore, Early bail */}
+    };
+
+    let logs = logs.get("logs")?.as_array()?;
+    
+    if let Ok(mut logger) = logger.lock() {
+        for log in logs {
+            proc_rx_logs_process_log(&mut logger, log);
+        }
+    }
+    
+    Some(())
 }

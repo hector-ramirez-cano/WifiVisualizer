@@ -11,6 +11,7 @@ extern crate serial;
 use std::sync::{Arc, Mutex};
 
 use rocket::fs::{FileServer, relative};
+use rocket::serde::json;
 use rocket_oauth2::OAuth2;
 
 pub use crate::internal::frame_type::*;
@@ -77,6 +78,7 @@ fn foo(logger : Arc<Mutex<Logger>>) {
         match frame.get_cmd() {
             Cmd::EndOfTransmission => break,
             Cmd::RequestAck { frame_id: _ } => proc_rx_request_ack(&mut conn, &mut frame_stack).unwrap(),
+            Cmd::TransmitLogs { logs } => { proc_rx_logs(&mut logger.clone(), &logs); },
             _ => {}
         }
     }

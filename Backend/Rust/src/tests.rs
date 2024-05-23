@@ -2,7 +2,7 @@
 use std::str::FromStr;
 
 #[cfg(test)]
-use json::object;
+use rocket::serde::json;
 
 #[cfg(test)]
 use serial::SerialPort;
@@ -357,14 +357,14 @@ fn test_frame_to_bytes() {
 
     // TransmitPicture
     let bytes : [u8; 18] = [0xC0, 0x0A, 0xDD, 0xDD, 0xDD, 0xDD, 0xFA, 0x00, 0x00, 0xAF, 0xC1, 0x00, 0x00, 0x1C, 0x7B, 0x7D, 0x8B, 0x60];
-    let frame = Frame::from_cmd(Cmd::TransmitPicture { position: Position::from_int(0xFA0000AF, 0xC100001C), body: object! {} }, 0xDDDDDDDD).unwrap();
+    let frame = Frame::from_cmd(Cmd::TransmitPicture { position: Position::from_int(0xFA0000AF, 0xC100001C), body: json::json! ({}) }, 0xDDDDDDDD).unwrap();
     assert_eq!(bytes.to_vec(), frame.as_bytes().unwrap());
 
     // EndOfTransmission
     let bytes: [u8; 8] = [0xF0, 0x00, 0x00, 0x00, 0x00, 0x01, 0x2B, 0xD5];
     assert_eq!(bytes.to_vec(), Frame::from_cmd(Cmd::EndOfTransmission, 1).unwrap().as_bytes().unwrap());
 }
- 
+
 
 #[test]
 fn test_frame_ping() {
@@ -457,7 +457,7 @@ fn test_frame_ping() {
 
     // TransmitPicture
     let bytes : [u8; 18] = [0xC0, 0x0A, 0xDD, 0xDD, 0xDD, 0xDD, 0xFA, 0x00, 0x00, 0xAF, 0xC1, 0x00, 0x00, 0x1C, 0x7B, 0x7D, 0x8B, 0x60];
-    let frame = Frame::from_cmd(Cmd::TransmitPicture { position: Position::from_int(0xFA0000AF, 0xC100001C), body: object! {} }, 0xDDDDDDDD).unwrap();
+    let frame = Frame::from_cmd(Cmd::TransmitPicture { position: Position::from_int(0xFA0000AF, 0xC100001C), body: json::json! ({}) }, 0xDDDDDDDD).unwrap();
     let rx = ping_frame(&mut conn, &frame);
     assert_eq!(bytes.to_vec(), rx);
 

@@ -32,6 +32,7 @@ Cmd_RecordRSSI = 9
 Cmd_SetPosition = 10
 Cmd_SetParams = 11
 Cmd_TransmitPicture = 12
+Cmd_TransmitLogs = 13
 Cmd_EndOfTransmission = 15
 
 
@@ -268,6 +269,9 @@ class Frame:
             body = str.encode(json.dumps(self.fields["body"], separators=(',', ':')), "utf-8")
 
             return position + body
+
+        if self.cmd == Cmd_TransmitLogs:
+            return str.encode(json.dumps(self.fields["logs"], separators=(',', ':')), "utf-8")
 
     def as_bytes(self) -> bytes:
         body = self.body_as_bytes()
@@ -553,6 +557,16 @@ def parse_cmd_body(cmd_nibble: int, length, buff: bytes):
                 "position": position[1],
                 "body"    : body
             }))
+
+    elif cmd_nibble == Cmd_TransmitLogs:
+        if length < 0x002:
+            return Result_Err, FrameError_LengthValueOutOfRange
+
+        logs = json.loads(str(buff), "UTF-8")
+        return (
+            Result_Ok,
+            ( Cmd_TransmitLogs, { "logs": logs } )
+        )
 
     else:
         return Result_Err, FrameError_InvalidErrorCode

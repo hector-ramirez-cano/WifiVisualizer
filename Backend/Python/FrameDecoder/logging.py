@@ -19,9 +19,12 @@ logging_enabled = True
 logging_level   = LOGGING_LEVEL_DEBUG
 outputFn        = print
 
+unflushed_logs = []
 
 def log(level: int, msg: str):
     global logging_level
+
+    unflushed_logs.append({"severity": level, "msg": msg})
 
     if level >= logging_level:
         msg = LABELS[level] + msg

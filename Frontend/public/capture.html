@@ -113,6 +113,7 @@
         .find((row) => row.startsWith("logStart="))
         ?.split("=")[1];
 
+        // TODO: Posibly change this in favor of websockets -> reduce polling
         let request = new XMLHttpRequest();
             request.open("GET", "/api/terminal/"+logStart);
             request.timeout = 3000;

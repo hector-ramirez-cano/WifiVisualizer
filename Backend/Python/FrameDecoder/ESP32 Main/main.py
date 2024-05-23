@@ -224,6 +224,14 @@ def decode_frame_queue(frameStack: FrameStack, port: machine.UART):
     handle_frame(result, frame_stack, port)
 
 
+def transmit_logs(frame_stack: FrameStack, port: machine.UART):
+    if len(unflushed_logs) == 0:
+        return
+
+    frame_ops.tx_new_frame(frame_types.Cmd_TransmitLogs, {"logs": unflushed_logs}, frame_stack, port)
+
+
+
 def init():
     global state
     global frame_stack
@@ -266,6 +274,9 @@ def main_loop():
         procs.proc_tx_record_transmission(UART2, frame_stack, state)
         
         advance_step(state, frame_stack, UART2)
+
+        # Transmit queued logs
+        transmit_logs(frame_stack, UART2)
         
 
 def main():

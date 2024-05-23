@@ -1,6 +1,7 @@
 use std::str::{from_utf8, FromStr};
 use std::result::Result;
 use std::collections::VecDeque;
+use rocket::serde::json;
 use crate::internal::utils::*;
 
 static CRC_16 : crc::Crc<u16> = crc::Crc::<u16>::new(&crc::CRC_16_MODBUS);
@@ -68,7 +69,8 @@ pub enum Cmd {
     RecordRSSI       {position: Position , record_count: u32 , records: Vec<Record>       } = 9,
     SetPosition      {position: Position                                                  } = 10,
     SetParams        {position: Position , step_size : StepSize, measurements_per_step: u8} = 11,
-    TransmitPicture  {position: Position , body      : json::JsonValue                    } = 12,
+    TransmitPicture  {position: Position , body      : json::Value                        } = 12,
+    TransmitLogs     {logs    : json::Value                                               } = 13,
 
     EndOfTransmission = 15
 }
@@ -94,7 +96,8 @@ pub enum FrameError {
     FailedToTransmitFrame,
     TransmissionTimedOut,
     ValueOutOfRange,
-    InvalidUTF8
+    InvalidUTF8,
+    InvalidJson
 }
 
 pub struct FrameStack {
@@ -470,17 +473,34 @@ impl Cmd {
                 }
 
                 if let Ok(body_str) = std::str::from_utf8(&data[8..]) {
-                    if let Ok(body) = json::parse(body_str) {
+                    if let Ok(body) =  json::from_str(body_str) {
 
                         return Ok(Cmd::TransmitPicture { 
                             position: Position::parse(&data[0..=7])?,
                             body
                         });
                     }
+                    return Err(FrameError::InvalidJson);
                 }
 
                 Err(FrameError::ValueOutOfRange)
                 
+            }
+
+            0xD => {
+                if length < 0x002 {
+                    return Err(FrameError::LengthValueOutOfRange);
+                }
+
+                if let Ok(logs) = std::str::from_utf8(&data[8..]) {
+                    if let Ok(logs) = json::from_str(logs) {
+
+                        return Ok(Cmd::TransmitLogs { logs})
+                    }
+                    return Err(FrameError::InvalidJson);
+                }
+
+                Err(FrameError::InvalidUTF8)
             }
 
             _ => Err(FrameError::InvalidCommandCode)
@@ -568,15 +588,19 @@ impl Cmd {
             },
             Cmd::TransmitPicture { position, body } => {
                 let position = position.as_bytes();
-                let body = body.dump();
+                let body = body.to_string();
 
                 let mut result = Vec::with_capacity(position.len() + body.len());
                 result.extend_from_slice(&position);
                 result.extend_from_slice(body.as_bytes());
 
                 Ok(result)
-            }
+            },
+            Cmd::TransmitLogs { logs } => {
+                let result = logs.to_string().as_bytes().to_vec();
 
+                Ok(result)
+            }
             
         }
     }
@@ -597,6 +621,7 @@ impl Cmd {
             Cmd::SetPosition       { .. }  => Ok(0x0A),
             Cmd::SetParams         { .. }  => Ok(0x0B),
             Cmd::TransmitPicture   { .. }  => Ok(0x0C),
+            Cmd::TransmitLogs      { .. }  => Ok(0x0D),
             Cmd::EndOfTransmission         => Ok(0x0F),
             _ => Err(FrameError::InvalidCommandCode)
         }
