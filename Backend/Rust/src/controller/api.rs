@@ -1,10 +1,13 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
 
 use rocket::form::Form;
+use rocket::futures::channel::mpsc::Receiver;
 use rocket::State;
 use rocket::{http::CookieJar, serde::json};
 
 use crate::internal::logger::Logger;
+use crate::internal::threading_comm::{self, Message};
 use crate::model::db;
 
 
@@ -87,8 +90,21 @@ pub async fn get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> json::
     )
 }
 
+type ThreadReceiver = mpsc::Receiver<Message>;
+type ThreadSender   = mpsc::Sender<Message>;
 #[get("/api/connection_status")]
-pub async fn get_connection_status() -> json::Value {
+pub async fn get_connection_status(threading_comm : &State<(ThreadSender, Mutex<ThreadReceiver>)>) -> json::Value {
+    // let (tx_web, rx_esp) = (threading_comm.0, threading_comm.1);
+
+    let backend_ready = {
+        // inquiry about the the status of the esp32 backend
+        if let Ok(receiver) = threading_comm.1.lock() {
+            Ok(Message::BackendReady(true)) == receiver.try_recv()
+        } else {
+            false    
+        }
+    };
+
     rocket::serde::json::json! (
         {
             "status": {
@@ -97,8 +113,8 @@ pub async fn get_connection_status() -> json::Value {
                     "ready": true
                 },
                 "esp32": {
-                    "up": true,
-                    "ready": true
+                    "up": true, // always true, since the backend runs on the same program as the backend web
+                    "ready": backend_ready
                 },
                 "backend": {
                     "up": true,
