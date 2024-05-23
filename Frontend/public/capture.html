@@ -107,19 +107,38 @@
     }
 
     function updateCommandLineOutput() {
-        let request = new XMLHttpRequest();
-            request.open("GET", "/api/terminal/0");
-            request.onload = () => {
-                if (request.status != 200) {
-                    return;
-                }
+        // check which was the last retrieved log
+        const logStart = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("logStart="))
+        ?.split("=")[1];
 
-                let new_lines = JSON.parse(request.responseText)["lines"];
+        let request = new XMLHttpRequest();
+            request.open("GET", "/api/terminal/"+logStart);
+            request.timeout = 3000;
+            request.onreadystatechange = () => {
+                if (request.readyState != 4 || request.status != 0) { return }
+
+                // update the display to let the user know the backend stopped responding
+                let display = document.getElementById("backend_requirements_display");
+
+                display.classList.remove("requirements_ready");
+                display.classList.add("requirements_not_ready");
+
+            }
+            request.onload = () => {
+
+                if (request.status != 200) { return; }
+
+                let json = JSON.parse(request.responseText);
+                let new_lines = json["lines"];
+
+                if (json["code"] != 200) { return; }
 
                 let cli = document.getElementById("capture_console");
 
                 // Remove old lines if needed
-                let max_lines = 300;
+                let max_lines = 100;
                 if (cli.children.length + new_lines.length > max_lines) {
                     let to_remove = (cli.children.length + new_lines.length) - max_lines;
                     for (let i = 0 ; i < to_remove; i++) {
@@ -127,16 +146,21 @@
                     }
                 }
 
-                for ( var i = new_lines.length; i > 0; i--) {   
-                // for (var line of new_lines) {
+                // construct msg
+                severityBanner = ["[     ]", "[VERB ]", "[DEBUG]", "[INFO ]", "[WARN ]", "[ERROR]"]
+                for ( var i = 0; i < new_lines.length; i++) {   
+                    let msg = severityBanner[new_lines[i]["severity"]] + new_lines[i]["msg"];
                     let p = document.createElement("p");
-                    p.innerHTML = new_lines[i-1];
+                    p.innerHTML = msg;
                     p.classList.add("cli_line");
                     cli.insertBefore(p, cli.childNodes[0]);
                 }
 
+                // update cookie
+                document.cookie = "logStart="+(Number(logStart)+new_lines.length)+";SameSite=strict";
 
-                setTimeout(updateCommandLineOutput, 100);
+                // Schedule another check on 1000ms
+                setTimeout(updateCommandLineOutput, 1000);
             }
             request.send();
     }
@@ -172,6 +196,7 @@
 
     function onLoad() {
         window.top.document.title = "Capture";
+        document.cookie = "logStart=0;SameSite=strict"
 
         requestConnectionStatus();
         updateCommandLineOutput();

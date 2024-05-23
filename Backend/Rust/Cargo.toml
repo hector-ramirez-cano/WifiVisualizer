@@ -12,4 +12,3 @@ json          = "0.12.4" # possibly remove in favor of Rocket's implementation o
 rocket        = { version = "0.5.0", features = ["json"] }
 rocket_oauth2 = "0.5.0"
 sqlx          = { version = "0.7.4", features = ["mysql", "macros", "runtime-async-std"] }
-rand = "0.8.0"

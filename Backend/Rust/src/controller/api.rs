@@ -1,9 +1,10 @@
+use std::sync::{Arc, Mutex};
 
-use rand::Rng;
 use rocket::form::Form;
-use rocket::response::Redirect;
-use rocket::{http::CookieJar, serde::json::Value};
+use rocket::State;
+use rocket::{http::CookieJar, serde::json};
 
+use crate::internal::logger::Logger;
 use crate::model::db;
 
 
@@ -12,7 +13,7 @@ pub const OAUTH2_USER_ID      : & 'static str = "oauth_user_id";
 
 
 #[get("/api/<user_id>/project_list", rank=10)]
-pub async fn get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value {
+pub async fn get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> json::Value {
 
     let cookie_id = cookies.get(&OAUTH2_USER_ID);
     let invalid = if let Some(val) = cookie_id {
@@ -87,7 +88,7 @@ pub async fn get_project_list(user_id: &str, cookies : &CookieJar<'_>) -> Value 
 }
 
 #[get("/api/connection_status")]
-pub async fn get_connection_status() -> Value {
+pub async fn get_connection_status() -> json::Value {
     rocket::serde::json::json! (
         {
             "status": {
@@ -109,18 +110,19 @@ pub async fn get_connection_status() -> Value {
 }
 
 #[get("/api/terminal/<start>", rank=1)]
-pub async fn get_terminal_contents(start: u64) -> Value {
-    rocket::serde::json::json! {
-        {
-            "lines": [
-                // "salida",
-                // "por consola",
-                //"del backend",
-                rand::thread_rng().gen_range(0..100000),
-                rand::thread_rng().gen_range(0..100000),
-                rand::thread_rng().gen_range(0..100000),
-            ]
-        }
+pub async fn get_terminal_contents(start: usize, logger:  &State<Arc<Mutex<Logger>>>) -> json::Value {
+    if let Ok(handle) = logger.lock() {
+        let lines = &handle.get_logs().as_slice()[start..];
+
+        rocket::serde::json::json! {{
+            "code": 200,
+            "lines": lines
+        }}
+    } else {
+        rocket::serde::json::json! {{
+            "code": 500,
+            "lines": []
+        }}
     }
 }
 
