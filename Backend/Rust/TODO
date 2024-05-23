@@ -1,5 +1,4 @@
 Remover datos Dummy de get_project_list sobre el api endpoint /api/<user_id>/get_project_list
-Consola web
 api endpoint de comando de inicio de captura
 cuerpo de api endpoint de comando de inicio de captura
 acción del backend con dispositivos físicos
