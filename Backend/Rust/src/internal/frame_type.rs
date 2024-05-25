@@ -496,9 +496,8 @@ impl Cmd {
 
                 if let Ok(logs) = std::str::from_utf8(&data) {
                     match json::from_str(logs) {
-                        Ok(logs) => return Ok(Cmd::TransmitLogs { logs}),
-                        Err(e) => {
-                            println!("{:?}=> {}, expected={} {}", data, data.len(), length, e);
+                        Ok(logs) => return Ok(Cmd::TransmitLogs { logs }),
+                        Err(_) => {
                             return Err(FrameError::InvalidJson);
                         }
                     }

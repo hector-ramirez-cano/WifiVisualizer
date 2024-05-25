@@ -1,4 +1,3 @@
-use std::sync::{Arc, Mutex};
 use rocket::serde::{Serialize, Deserialize};
 
 
@@ -75,11 +74,5 @@ impl Logger {
 
     pub fn get_logs(&self) -> &Vec<Log> {
         &self.logs
-    }
-}
-
-pub fn log(logger : &mut Arc<Mutex<Logger>>, severity : Severity, msg: &str) {
-    if let Ok(mut handle) = logger.lock() {
-        handle.log(severity, msg);
     }
 }

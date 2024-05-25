@@ -1,17 +1,13 @@
-use std::fs::File;
-use std::io::Read;
-use std::net::{IpAddr, Ipv4Addr};
-use std::process::{Command, ExitStatus};
+use std::process::ExitStatus;
+use std::process::Command;
 use std::sync::{mpsc, Arc, Mutex};
-use std::thread;
 
 use rocket::form::Form;
-use rocket::futures::channel::mpsc::Receiver;
 use rocket::State;
 use rocket::{http::CookieJar, serde::json};
 
 use crate::internal::logger::Logger;
-use crate::internal::threading_comm::{self, Message};
+use crate::internal::threading_comm::Message;
 use crate::model::db;
 
 
@@ -145,12 +141,21 @@ pub async fn get_connection_status(threading_comm : &State<(ThreadSender, Mutex<
 #[get("/api/terminal/<start>", rank=1)]
 pub async fn get_terminal_contents(start: usize, logger:  &State<Arc<Mutex<Logger>>>) -> json::Value {
     if let Ok(handle) = logger.lock() {
-        let lines = &handle.get_logs().as_slice()[start..];
+        if handle.get_logs().len() > start{
+            let lines = &handle.get_logs().as_slice()[start..];
 
-        rocket::serde::json::json! {{
-            "code": 200,
-            "lines": lines
-        }}
+            rocket::serde::json::json! {{
+                "code": 200,
+                "lines": lines
+            }}
+        } else {
+            rocket::serde::json::json! {{
+                "code": 200,
+                "lines": []
+            }}
+        }
+
+        
     } else {
         rocket::serde::json::json! {{
             "code": 500,

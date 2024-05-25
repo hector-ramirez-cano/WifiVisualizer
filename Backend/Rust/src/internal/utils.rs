@@ -1,9 +1,5 @@
 use super::frame_type::FrameError;
 
-pub fn map(x: &f32, in_min : &f32, in_max : &f32, out_min : &f32, out_max : &f32) -> f32 {
-    (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-}
-
 pub fn constraint_to_degree(deg: f32) -> f32 {
     let mut result = deg;
     if result > 360.0 {

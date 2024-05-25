@@ -8,12 +8,6 @@ use rocket::serde::json;
 use serial::SerialPort;
 
 #[cfg(test)]
-use crate::internal::frame_ops::*;
-
-#[cfg(test)]
-use crate::internal::procs;
-
-#[cfg(test)]
 use crate::FrameError;
 
 

@@ -7,7 +7,7 @@ use rocket::serde::json;
 
 // own crates
 use crate::internal::frame_ops::{self, tx_frame_blocking};
-use crate::internal::logger::{log, Severity, Logger};
+use crate::internal::logger::{Severity, Logger};
 use crate::internal::frame_type::*;
 
 pub fn proc_tx_reset<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack) -> Result<(), FrameError> {
