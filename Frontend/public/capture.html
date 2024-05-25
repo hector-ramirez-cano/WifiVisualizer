@@ -181,6 +181,10 @@
                 display.classList.add("requirements_ready");
                 display.classList.remove("requirements_not_ready");
             } else {
+                let display = document.getElementById(elem[1]);
+
+                display.classList.remove("requirements_ready");
+                display.classList.add("requirements_not_ready");
                 every_ready = false;
             }
         }
