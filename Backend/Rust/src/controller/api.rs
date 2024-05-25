@@ -146,7 +146,8 @@ pub async fn get_terminal_contents(start: usize, logger:  &State<Arc<Mutex<Logge
 
             rocket::serde::json::json! {{
                 "code": 200,
-                "lines": lines
+                "lines": lines,
+                "separate": true,
             }}
         } else {
             rocket::serde::json::json! {{

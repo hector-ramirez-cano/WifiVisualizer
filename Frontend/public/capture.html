@@ -136,10 +136,17 @@
 
                 let json = JSON.parse(request.responseText);
                 let new_lines = json["lines"];
+                let cli = document.getElementById("capture_console");
 
                 if (json["code"] != 200) { return; }
 
-                let cli = document.getElementById("capture_console");
+                if (json["separate"] === true) {
+                    let p = document.createElement("p");
+                    p.innerHTML = "~";
+                    p.classList.add("cli_line");
+                    cli.insertBefore(p, cli.childNodes[0])
+                }
+
 
                 // Remove old lines if needed
                 let max_lines = 100;
