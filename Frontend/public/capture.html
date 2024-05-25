@@ -116,11 +116,12 @@
         // TODO: Posibly change this in favor of websockets -> reduce polling
         let request = new XMLHttpRequest();
             request.open("GET", "/api/terminal/"+logStart);
-            request.timeout = 3000;
+            request.timeout = 10000;
             request.onreadystatechange = () => {
                 if (request.readyState != 4 || request.status != 0) { return }
-
+                
                 // update the display to let the user know the backend stopped responding
+                console.error("request for terminal update failed with state", request.readyState)
                 let display = document.getElementById("backend_requirements_display");
 
                 display.classList.remove("requirements_ready");
@@ -128,6 +129,8 @@
 
             }
             request.onload = () => {
+
+                console.log("updating terminal output", "rx reponse", request.body);
 
                 if (request.status != 200) { return; }
 
@@ -159,9 +162,6 @@
 
                 // update cookie
                 document.cookie = "logStart="+(Number(logStart)+new_lines.length)+";SameSite=strict";
-
-                // Schedule another check on 1000ms
-                setTimeout(updateCommandLineOutput, 1000);
             }
             request.send();
     }
@@ -188,8 +188,6 @@
         let capture_button = document.getElementById("capture_button");
         if (!every_ready) {
             capture_button.style.cursor = "not-allowed";
-
-            setTimeout(requestConnectionStatus, 2000);
         } else {
             capture_button.style.cursor = "pointer";    
         }
@@ -200,7 +198,9 @@
         document.cookie = "logStart=0;SameSite=strict"
 
         requestConnectionStatus();
-        updateCommandLineOutput();
+
+        setInterval(updateCommandLineOutput, 3000);
+        setInterval(requestConnectionStatus, 3000);
 
         document.getElementById("capture_parameter_list").addEventListener("submit", submitForm);
     }

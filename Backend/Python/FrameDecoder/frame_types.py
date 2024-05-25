@@ -277,6 +277,9 @@ class Frame:
         body = self.body_as_bytes()
         header = header_as_bytes(self.cmd, len(body), self.frame_id)
         checksum = self.checksum
+        
+        if (self.cmd == Cmd_TransmitLogs):
+            print(len(body), body)
 
         return header + body + checksum.as_bytes()
 
@@ -562,7 +565,7 @@ def parse_cmd_body(cmd_nibble: int, length, buff: bytes):
         if length < 0x002:
             return Result_Err, FrameError_LengthValueOutOfRange
 
-        logs = json.loads(str(buff), "UTF-8")
+        logs = json.loads(str(buff, "UTF-8"))
         return (
             Result_Ok,
             ( Cmd_TransmitLogs, { "logs": logs } )

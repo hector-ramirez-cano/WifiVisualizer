@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::Read;
+use std::net::{IpAddr, Ipv4Addr};
+use std::process::{Command, ExitStatus};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
@@ -105,11 +109,24 @@ pub async fn get_connection_status(threading_comm : &State<(ThreadSender, Mutex<
         }
     };
 
+    let config = crate::internal::config::load_config().unwrap_or_default();
+
+    let esp32_cam_up = {
+        let ip = config.esp32_cam_ip();
+        if let Ok(ping) = Command::new("ping")
+            .args(["-c 1", "-w 2", &ip.to_canonical().to_string()])
+            .output() {
+                ExitStatus::success(&ping.status)
+            } else {
+                false
+            }
+    };
+
     rocket::serde::json::json! (
         {
             "status": {
                 "esp32_cam": {
-                    "up": true,
+                    "up": esp32_cam_up,
                     "ready": true
                 },
                 "esp32": {

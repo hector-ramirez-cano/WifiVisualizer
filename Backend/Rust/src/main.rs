@@ -18,24 +18,16 @@ use rocket_oauth2::OAuth2;
 pub use crate::internal::frame_type::*;
 use crate::internal::frame_ops::*;
 use crate::internal::procs::*;
-use crate::internal::logger::{log, Severity, Logger};
+use crate::internal::logger::{Severity, Logger};
 use crate::internal::threading_comm::Message;
 
 #[launch]
 fn launch() -> _ {
     println!("[DEBUG]Launching API Server");
     let fileserver = FileServer::from(relative!("../../Frontend/public/"));
-    let mut logger = Arc::new(Mutex::new(Logger::new()));
+    let logger = Arc::new(Mutex::new(Logger::new()));
     let (tx_web, rx_web) = mpsc::channel::<Message>();
     let (tx_esp, rx_esp) = mpsc::channel::<Message>();
-
-    log(&mut logger, Severity::DEBUG  , "Mensaje de ejemplo 1");
-    log(&mut logger, Severity::INFO   , "Mensaje de ejemplo 2");
-    log(&mut logger, Severity::ERROR  , "Mensaje de ejemplo 3");
-    log(&mut logger, Severity::WARNING, "Mensaje de ejemplo 4");
-    log(&mut logger, Severity::VERBOSE, "Mensaje de ejemplo 5");
-    log(&mut logger, Severity::DEBUG  , "Mensaje de ejemplo 6");
-    log(&mut logger, Severity::DEBUG  , "Mensaje de ejemplo 7");
 
     let rocket = rocket::build()
         .mount("/public", fileserver)
@@ -76,25 +68,33 @@ fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, 
     let mut conn = 'port: loop {
         let port = create_port_conn(&port_name);
 
-        if let Ok(port) = port {
-            break 'port port;
-        } else {
-            if let Ok(mut handle) = logger.lock() {
-                handle.log(Severity::ERROR, &format!("Failed to bind to port {}. Retrying in 500ms", &port_name));
-                thread::sleep(Duration::from_millis(500));
+        match port {
+            Ok(port) => break 'port port,
+            Err(err) => {
+                    if let Ok(mut handle) = logger.lock() {
+                        handle.log(Severity::ERROR, &format!("Failed to bind to port {} with error {}. Retrying in 5s", &err, &port_name));
+                        thread::sleep(Duration::from_secs(5));
 
-                // Best efford. If it can't be sent, try again
-                let _ = tx_thread.send(Message::BackendReady(false));
-            }
+                        // Best effort. If it can't be sent, try again
+                        let _ = tx_thread.send(Message::BackendReady(false));
+                    }
+                }
         }
     };
+
+    if let Ok(mut handle) = logger.lock() {
+        handle.log(Severity::INFO, &format!("Acquired connection to port {}", &port_name));
+    }
 
     let mut frame_stack = FrameStack::new();
 
     // TODO: Remove assert in favor of error handling
-    assert_eq!(Ok(()), proc_tx_handshake(&mut conn, &mut frame_stack));
+    assert_eq!(Ok(()), proc_tx_handshake(&mut conn, &mut frame_stack, logger.clone()));
     assert_eq!(Ok(()), proc_tx_reset    (&mut conn, &mut frame_stack));
 
+    if let Ok(mut handle) = logger.lock() {
+        handle.log(Severity::INFO, "Sucessful handshake with ESP32");
+    }
     // Inform Rocket the backend is ready
     while let Err(e) = tx_thread.send(Message::BackendReady(true)) {
         if let Ok(mut handle) = logger.lock() {
@@ -109,9 +109,17 @@ fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, 
 
         match frame.get_cmd() {
             Cmd::EndOfTransmission => break,
-            Cmd::RequestAck   { frame_id: _ } => proc_rx_request_ack(&mut conn, &mut frame_stack).unwrap(),
+            Cmd::RequestAck   { frame_id: _ } => proc_rx_request_ack(&mut conn, &mut frame_stack, logger.clone()).unwrap(),
             Cmd::TransmitLogs { logs } => { proc_rx_logs(&mut logger.clone(), &logs); },
             _ => {}
+        }
+    }
+
+    // Inform Rocket the backend is no longer ready
+    while let Err(e) = tx_thread.send(Message::BackendReady(false)) {
+        if let Ok(mut handle) = logger.lock() {
+            handle.log(Severity::ERROR, &format!("Failed to transmit backend status with error '{}'. Retrying in 50ms", e.to_string()));
+            thread::sleep(Duration::from_millis(50));
         }
     }
 }

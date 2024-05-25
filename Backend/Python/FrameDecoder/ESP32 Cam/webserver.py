@@ -16,9 +16,11 @@ import machine
 import json
 import time
 import camera
+import logging
 
 from microWebSrv import MicroWebSrv
 from logging import *
+
 
 class webcam():
 
@@ -38,6 +40,7 @@ class webcam():
             ("/stream/<d>"    , "GET", self._httpStream),
             ("/upy"           , "GET", self._httpHandlerGetData),
             ("/memory/<query>", "GET", self._httpHandlerMemory),
+            ("/api/terminal/" , "GET", self._httpGetLogs),
             ("/upy/<saturation>/<brightness>/<contrast>/<quality>/<vflip>/<hflip>/<framesize>", "GET", self._httpHandlerSetData),
         ]
 
@@ -47,7 +50,7 @@ class webcam():
         # Camera resilience - if we fail to init try to deinit and init again
         if app_config['camera'] == 'ESP32-CAM':
             pass
-            # camera.init(0, format=camera.JPEG, framesize=self.framesize)      #ESP32-CAM
+            camera.init(0, format=camera.JPEG, framesize=self.framesize)      #ESP32-CAM
 
 
         mws = MicroWebSrv(routeHandlers=self.routeHandlers, webPath="www/")
@@ -56,13 +59,26 @@ class webcam():
         
         log(LOGGING_LEVEL_INFO, "Webserver is running")
         
+    
+    def _httpGetLogs(self, httpClient, httpResponse):
+        data = {
+            "code": 200,
+            "lines": logging.unflushed_logs
+        }
+        
+        logging.unflushed_logs = []
+        
+        httpResponse.WriteResponseOk(headers=None,
+                                        contentType="application/json",
+                                        contentCharset="UTF-8",
+                                        content=json.dumps(data))
         
 
     def _httpStream(self, httpClient, httpResponse, routeArgs):
-        # image = camera.capture()
-        file = open("never gonna give.jpg", "rb")
-        image = file.read()
-        file.close()
+        image = camera.capture()
+        #file = open("never gonna give.jpg", "rb")
+        #image = file.read()
+        #file.close()
 
         headers = { 'Last-Modified' : 'Fri, 1 Jan 2018 23:42:00 GMT', \
                     'Cache-Control' : 'no-cache, no-store, must-revalidate' }
@@ -159,3 +175,5 @@ class webcam():
                                     contentType="text/html",
                                     contentCharset="UTF-8",
                                     content=content)
+
+

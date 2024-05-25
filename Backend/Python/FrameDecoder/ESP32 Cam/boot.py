@@ -32,7 +32,10 @@ def wifi_conecta():
         except:
             pass
         delta = time.ticks_ms() - start_time
-        time.sleep(0.5)
+        machine.Pin(33, machine.Pin.OUT).off()
+        time.sleep(0.25)
+        machine.Pin(33, machine.Pin.OUT).on()
+        time.sleep(0.25)
         
     if not wlan.isconnected():
         log(LOGGING_LEVEL_ERROR, f"Fallo en obtener conexión ssid={ssid} pass={password}")
@@ -45,3 +48,4 @@ wifi_conecta()
 webrepl.start()
 
 machine.Pin(33, machine.Pin.OUT).off()
+

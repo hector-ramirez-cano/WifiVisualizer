@@ -13,7 +13,7 @@ import procs
 import sensores
 import utils
 import Stepper
-
+import logging
 
 
 # Imports al scope
@@ -35,8 +35,8 @@ UART2_RX_PIN  = 16
 UART2_TX_PIN  = 17
 ACCEL_SCL_PIN = 22 # No puede cambiar sin alterar la librería
 ACCEL_SDA_PIN = 21 # No puede cambiar sin alterar la librería
-MAGNT_SCL_PIN = 33
-MAGNT_SDA_PIN = 32
+MAGNT_SCL_PIN = 25
+MAGNT_SDA_PIN = 33
 V_STEPPER     = [2 , 4 , 18, 19]
 H_STEPPER     = [13, 12, 14, 27]
 
@@ -78,12 +78,15 @@ def onPositionChange(state: State, old_pitch, old_yaw):
     
     else:
         log(LOGGING_LEVEL_INFO, "Measuring current pitch and yaw...")
-        pitch, yaw = sz = 0, 0, 10
+        pitch, yaw, sz = 0, 0, 10
         
         for i in range(sz):
             (acc_x, _, _, _, _, _) = ACCEL.measure()
+            log(LOGGING_LEVEL_DEBUG, f"acc_x={acc_x}")
             pitch += utils.angle_from_gravity(acc_x)
             yaw   += MAGNT.measure()
+            
+            log(LOGGING_LEVEL_DEBUG, f"pitch={pitch}, yaw={yaw}")
             time.sleep_ms(5)
             
         avg_pitch = pitch / sz
@@ -225,11 +228,18 @@ def decode_frame_queue(frameStack: FrameStack, port: machine.UART):
 
 
 def transmit_logs(frame_stack: FrameStack, port: machine.UART):
-    if len(unflushed_logs) == 0:
+    if len(logging.unflushed_logs) == 0:
         return
-
-    frame_ops.tx_new_frame(frame_types.Cmd_TransmitLogs, {"logs": unflushed_logs}, frame_stack, port)
-
+    
+    # Flush logs, 5 at a time
+    count = 5
+    for i in range(1+len(logging.unflushed_logs)/count):
+        start = i     * count
+        end   = (i+1) * count  
+        body = {"logs": logging.unflushed_logs[start:end]}
+        frame_ops.tx_new_frame(frame_types.Cmd_TransmitLogs, {"logs": body}, frame_stack, port)
+        
+    logging.unflushed_logs = []
 
 
 def init():
@@ -263,20 +273,25 @@ def main_loop():
     global frame_stack
     global state
     
+    # Transmit queued logs
+    transmit_logs(frame_stack, UART2)
+        
     while state.active_connection:
         
         # Polling
         while UART2.any():
             decode_frame_queue(frame_stack, UART2)
-            
+        
+        
+        # Transmit queued logs
+        transmit_logs(frame_stack, UART2)
+        
         # Acting
         measure_rssi(state)
         procs.proc_tx_record_transmission(UART2, frame_stack, state)
         
         advance_step(state, frame_stack, UART2)
 
-        # Transmit queued logs
-        transmit_logs(frame_stack, UART2)
         
 
 def main():
@@ -287,6 +302,12 @@ def main():
             main_loop()
         except Exception as e:
             log(LOGGING_LEVEL_ERROR, "Unexpected error on main loop...")
+            frame_ops.tx_new_frame(frame_types.Cmd_EndOfTransmission, {}, frame_stack, UART2)
+            state.active_connection = False
+            raise e
+        
+        except KeyboardInterrupt as e:
+            log(LOGGING_LEVEL_ERROR, "Manual exit of loop...")
             frame_ops.tx_new_frame(frame_types.Cmd_EndOfTransmission, {}, frame_stack, UART2)
             state.active_connection = False
             raise e

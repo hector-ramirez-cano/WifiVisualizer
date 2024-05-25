@@ -4,3 +4,4 @@ pub mod procs;
 pub mod utils;
 pub mod logger;
 pub mod threading_comm;
+pub mod config;

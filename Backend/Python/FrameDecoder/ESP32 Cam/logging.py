@@ -16,7 +16,7 @@ LABELS = (
 )
 
 logging_enabled = True
-logging_level   = LOGGING_LEVEL_ALL
+logging_level   = LOGGING_LEVEL_DEBUG
 outputFn        = print
 
 unflushed_logs = []
@@ -24,7 +24,7 @@ unflushed_logs = []
 def log(level: int, msg: str):
     global logging_level
 
-    unflushed_logs.append({"severity": level, "msg": "[ESP32]"+msg})
+    unflushed_logs.append({"severity": level, "msg": "[ESP32-Cam]" + msg})
 
     if level >= logging_level:
         msg = LABELS[level] + msg

@@ -37,7 +37,7 @@ pub fn proc_tx_reset<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack) 
 }
 
 
-pub fn proc_tx_handshake<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack) -> Result<(), FrameError> {
+pub fn proc_tx_handshake<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack, logger : Arc<Mutex<Logger>>) -> Result<(), FrameError> {
     let mut handshake_frame_stack = FrameStack::new();
 
     // tx SoT
@@ -47,7 +47,9 @@ pub fn proc_tx_handshake<T: SerialPort>(port: &mut T, frame_stack: &mut FrameSta
     // rx Ack
     while frame_ops::rx_frame(frame_stack, port).is_err() {
         // Retransmit until we get a response
-        println!("[INFO ]Failed to perform handshake. Trying again...");
+        if let Ok(mut handle) = logger.lock() {
+            handle.log(Severity::ERROR, "Failed to perform handshake; no answer. Trying again...");
+        }
         let sot = Frame::from_cmd(Cmd::StartOfTransmission, 0)?;
         frame_ops::retx_frame_blocking(sot, port)?;
     }
@@ -72,7 +74,7 @@ pub fn proc_tx_ack<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack, fr
 }
 
 
-pub fn proc_rx_request_ack<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack) -> Result<(), FrameError> {
+pub fn proc_rx_request_ack<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack, logger : Arc<Mutex<Logger>>) -> Result<(), FrameError> {
     let rx_queue = frame_stack.get_rx_frame_queue();
     let mut rx_ids: Vec<u32> = Vec::with_capacity(rx_queue.len());
 
@@ -99,7 +101,9 @@ pub fn proc_rx_request_ack<T: SerialPort>(port: &mut T, frame_stack: &mut FrameS
         // we've lost some packets. We ask for them again and exit
         let start = new_most_recent_ack;
         let end = id;
-        println!("[DEBUG]Lost frames! [{start}-{end})");
+        if let Ok(mut handle) = logger.lock() {
+            handle.log(Severity::DEBUG, &format!("Lost frames! [{} - {}]", start, end));
+        }
         proc_tx_request_retransmit(port, frame_stack, start, end)?;
         return Ok(());
         

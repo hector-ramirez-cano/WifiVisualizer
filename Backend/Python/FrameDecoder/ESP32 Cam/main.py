@@ -9,6 +9,7 @@ import webserver
 
 # Imports como namespace
 import utils
+import logging
 
 # Imports al scope 
 from logging import *
@@ -27,9 +28,12 @@ def init():
             
     
 def main():
+    logging.unflushed_logs = [] # Descartamos los logs generados por el boot
     
+    log(LOGGING_LEVEL_INFO, "Init...")
     init()
-    log(LOGGING_LEVEL_INFO, "Init successfully")
+    
+    log(LOGGING_LEVEL_INFO, "Init success")
     
     web_server = webserver.webcam()
     web_server.run(config.app_config)

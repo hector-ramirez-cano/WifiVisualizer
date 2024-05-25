@@ -471,7 +471,7 @@ impl Cmd {
                 if length < 0x00A {
                     return Err(FrameError::LengthValueOutOfRange);
                 }
-
+                
                 if let Ok(body_str) = std::str::from_utf8(&data[8..]) {
                     if let Ok(body) =  json::from_str(body_str) {
 
@@ -488,16 +488,22 @@ impl Cmd {
             }
 
             0xD => {
+                
                 if length < 0x002 {
+                    dbg!(&data);
                     return Err(FrameError::LengthValueOutOfRange);
                 }
 
-                if let Ok(logs) = std::str::from_utf8(&data[8..]) {
-                    if let Ok(logs) = json::from_str(logs) {
-
-                        return Ok(Cmd::TransmitLogs { logs})
+                if let Ok(logs) = std::str::from_utf8(&data) {
+                    match json::from_str(logs) {
+                        Ok(logs) => return Ok(Cmd::TransmitLogs { logs}),
+                        Err(e) => {
+                            println!("{:?}=> {}, expected={} {}", data, data.len(), length, e);
+                            return Err(FrameError::InvalidJson);
+                        }
                     }
-                    return Err(FrameError::InvalidJson);
+                    
+    
                 }
 
                 Err(FrameError::InvalidUTF8)
@@ -644,7 +650,7 @@ impl Frame {
         let (length, frame_length) = {
                 
                 // TODO: Convert to from_be_bytes
-                let l = (bytes[0] as u16 & 0x0F << 8) | bytes[1] as u16;
+                let l = u16::from_be_bytes([bytes[0], bytes[1]]) & 0x0FFF;
 
                 (l, l + (FRAME_HEADER_SIZE + CHECKSUM_SIZE) as u16 /* 2 cmd+length, 4 frame_id, 2 checksum */)
                 
