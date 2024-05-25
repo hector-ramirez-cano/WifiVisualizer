@@ -64,7 +64,9 @@ fn launch() -> _ {
 type ThreadReceiver = mpsc::Receiver<Message>;
 type ThreadSender   = mpsc::Sender<Message>;
 fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, tx_thread: ThreadSender) { 
-    let port_name = "/dev/ttyUSB0";
+    let config = crate::internal::config::load_config().unwrap_or_default();
+
+    let port_name = config.esp32_port();
     let mut conn = 'port: loop {
         let port = create_port_conn(&port_name);
 
