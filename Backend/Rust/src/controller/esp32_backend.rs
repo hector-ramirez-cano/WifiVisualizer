@@ -12,25 +12,29 @@ use crate::create_port_conn;
 type ThreadReceiver = mpsc::Receiver<Message>;
 type ThreadSender   = mpsc::Sender<Message>;
 fn handle_thread_msg(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver, tx_thread: &ThreadSender, port_status: bool) -> Option<Message> {
-    if let Ok(msg) = rx_thread.try_recv() {
-        match msg {
-            Message::StartCapture         => todo!(),
-            Message::BackendReady(_)      => panic!("Unreachable!"),
-            Message::BackendStatusRequest => {
-                println!("[INFO][LOCAL]handling request for backend status");
-                let mut msg = tx_thread.send(Message::BackendReady(true));
-                while let Err(e) = msg {
-                    if let Ok(mut handle) = logger.lock() {
-                        handle.log(Severity::ERROR, &format!("Failed to transmit backend status with error '{}'. Retrying in 50ms", e.to_string()));
-                        thread::sleep(Duration::from_millis(50));
-                    }
-                    msg = tx_thread.send(Message::BackendReady(port_status));
+    let msg = if let Ok(msg) = rx_thread.try_recv() {
+        msg
+    } else {
+        return None
+    };
+
+    match msg {
+        Message::StartCapture         => {},
+        Message::BackendReady(_)      => panic!("Unreachable!"),
+        Message::BackendStatusRequest => {
+            println!("[INFO][LOCAL]handling request for backend status");
+            let mut msg = tx_thread.send(Message::BackendReady(true));
+            while let Err(e) = msg {
+                if let Ok(mut handle) = logger.lock() {
+                    handle.log(Severity::ERROR, &format!("Failed to transmit backend status with error '{}'. Retrying in 50ms", e.to_string()));
+                    thread::sleep(Duration::from_millis(50));
                 }
-            },
-        }
+                msg = tx_thread.send(Message::BackendReady(port_status));
+            }
+        },
     }
 
-    None
+    Some(msg)
 }
 
 pub fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, tx_thread: ThreadSender) { 

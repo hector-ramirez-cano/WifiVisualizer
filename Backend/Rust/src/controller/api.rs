@@ -9,6 +9,7 @@ use rocket::State;
 use rocket::{http::CookieJar, serde::json};
 
 use crate::internal::logger::Logger;
+use crate::internal::logger::Severity;
 use crate::internal::threading_comm::Message;
 use crate::model::db;
 
@@ -187,7 +188,25 @@ pub struct CaptureRequest {
     measurements_per_step: u8
 }
 
+type ThreadingComm = State<(ThreadSender, Mutex<ThreadReceiver>)>;
+type LoggerMutex = State<Arc<Mutex<Logger>>>;
 #[post("/api/start", data = "<params>")]
-pub fn post_capture_request(params: Form<CaptureRequest>) -> () {
+pub fn post_capture_request(params: Form<CaptureRequest>, logger:  &LoggerMutex, threading_comm : &ThreadingComm) -> () {
+    // let (tx_web, rx_esp) = (threading_comm.0, threading_comm.1);
+
+    if let Ok(mut handle) = logger.lock() {
+        handle.log(Severity::INFO, "==> Capture start requested! <==")
+    }
+
+
+    let mut msg = threading_comm.0.send(Message::StartCapture);
+    while let Err(e) = msg {
+        if let Ok(mut handle) = logger.lock() {
+            handle.log(Severity::ERROR, &format!("Failed to transmit backend status with error '{}'. Retrying in 50ms", e.to_string()));
+            thread::sleep(Duration::from_millis(50));
+        }
+        msg = threading_comm.0.send(Message::StartCapture);
+    } 
+
     println!("{:?}", params);
 }
