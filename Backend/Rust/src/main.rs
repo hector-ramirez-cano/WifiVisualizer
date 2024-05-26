@@ -61,6 +61,7 @@ fn launch() -> _ {
 }
 
 
+// TODO: Move to controller layer
 type ThreadReceiver = mpsc::Receiver<Message>;
 type ThreadSender   = mpsc::Sender<Message>;
 fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, tx_thread: ThreadSender) { 
@@ -92,19 +93,46 @@ fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, 
 
     // TODO: Remove assert in favor of error handling
     assert_eq!(Ok(()), proc_tx_handshake(&mut conn, &mut frame_stack, logger.clone()));
-    assert_eq!(Ok(()), proc_tx_reset    (&mut conn, &mut frame_stack));
 
     if let Ok(mut handle) = logger.lock() {
         handle.log(Severity::INFO, "Sucessful handshake with ESP32");
     }
     // Inform Rocket the backend is ready
-    while let Err(e) = tx_thread.send(Message::BackendReady(true)) {
+    let mut msg = tx_thread.send(Message::BackendReady(true));
+    while let Err(e) = msg {
         if let Ok(mut handle) = logger.lock() {
             handle.log(Severity::ERROR, &format!("Failed to transmit backend status with error '{}'. Retrying in 50ms", e.to_string()));
             thread::sleep(Duration::from_millis(50));
         }
+        msg = tx_thread.send(Message::BackendReady(true));
     }
 
+    
+
+    // wait for the order to start the capture
+    loop {
+        // Process status requests
+        if let Ok(msg) = rx_thread.try_recv() {
+            match msg {
+                Message::StartCapture => todo!(),
+                Message::BackendReady(_) => todo!(),
+                Message::BackendStatusRequest => {
+                    println!("[INFO][LOCAL]handling request for backend status");
+                    let mut msg = tx_thread.send(Message::BackendReady(true));
+                    while let Err(e) = msg {
+                        if let Ok(mut handle) = logger.lock() {
+                            handle.log(Severity::ERROR, &format!("Failed to transmit backend status with error '{}'. Retrying in 50ms", e.to_string()));
+                            thread::sleep(Duration::from_millis(50));
+                        }
+                        msg = tx_thread.send(Message::BackendReady(true));
+                    }
+                },
+            }
+        }
+
+    }
+
+    assert_eq!(Ok(()), proc_tx_reset    (&mut conn, &mut frame_stack));
     loop {
         let frame = rx_frame_blocking(&mut frame_stack,&mut conn).unwrap();
         println!("{frame:?}");

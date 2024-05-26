@@ -1,6 +1,8 @@
 use std::process::ExitStatus;
 use std::process::Command;
 use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 use rocket::form::Form;
 use rocket::State;
@@ -99,9 +101,17 @@ pub async fn get_connection_status(threading_comm : &State<(ThreadSender, Mutex<
     let backend_ready = {
         // inquiry about the the status of the esp32 backend
         if let Ok(receiver) = threading_comm.1.lock() {
-            Ok(Message::BackendReady(true)) == receiver.try_recv()
+            println!("[INFO][LOCAL]requested backend status");
+            let mut msg = threading_comm.0.send(Message::BackendStatusRequest);
+            while let Err(_) = msg {
+                thread::sleep(Duration::from_millis(50));
+                
+                msg = threading_comm.0.send(Message::BackendStatusRequest);
+            }
+
+            Ok(Message::BackendReady(true)) == receiver.recv()
         } else {
-            false    
+            false
         }
     };
 
