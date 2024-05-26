@@ -109,7 +109,7 @@ pub async fn get_connection_status(threading_comm : &State<(ThreadSender, Mutex<
                 msg = threading_comm.0.send(Message::BackendStatusRequest);
             }
 
-            Ok(Message::BackendReady(true)) == receiver.recv()
+            Ok(Message::BackendReady(true)) == receiver.try_recv()
         } else {
             false
         }
