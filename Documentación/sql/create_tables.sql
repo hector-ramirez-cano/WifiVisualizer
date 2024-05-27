@@ -30,8 +30,11 @@ CREATE OR REPLACE TABLE Users (
 );
 
 
-CREATE TABLE IF NOT EXISTS Projects (
+CREATE TABLE Projects (
     project_id          INT     auto_increment UNIQUE,
+    project_title       VARCHAR(100) NOT NULL,
+    project_description VARCHAR(1000),
+    in_capture          BOOLEAN NOT NULL,
     creator_user_id     INT     NOT NULL,
     image_id            INT     NOT NULL,
     project_data        JSON    NOT NULL,
