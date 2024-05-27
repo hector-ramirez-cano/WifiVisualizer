@@ -68,19 +68,18 @@
             let project_list_container = document.getElementById("side_nav_project_list");
             let pending_list_container = document.getElementById("side_nav_capture_list");
 
-
+            
             for (let project of response["list"]) {
-
                 // <h3 class="project_link" onclick="load_project(1)">Proyecto 1</h3>
-                let status = project["status"]
-                let name   = project["name"];
+                let status = project["in_capture"];
+                let name   = project["project_title"];
 
                 let h3 = makeWithAttributes("h3", {"class": "project_link clickable"});
                 h3.innerText = name;
 
-                if (status === "done") {
+                if (status === false) {
                     project_list_container.appendChild(h3);
-                } else if (status === "in capture") {
+                } else if (status === true) {
                     pending_list_container.appendChild(h3);
                 }
             }

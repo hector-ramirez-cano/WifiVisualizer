@@ -85,9 +85,8 @@
                 let item_class = "project_item clickable ";
                 let name = project["project_title"];
                 let description = project["project_description"]
-
-                
                 let status = project["in_capture"];
+                
                 if (status === true) {
                     image_source += "projectCoverCapturePlaceholder.png";
                     item_class += " in_capture";
