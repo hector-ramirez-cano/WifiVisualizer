@@ -20,6 +20,10 @@
                 </div>
                 <div id="capture_workbench">
                     <form id="capture_parameter_list" action="/api/start" method="POST"> <!--Stopped by submitForm() to avoid redirect-->
+                        <input type="text" name="project_title" value="Projecto sin nombre" id="project_title_input">
+
+                        <input type="text" name="project_description" id="project_description_input">
+
                         <div class="capture_paramter_item">
                             <span class="capture_parameter_label">Step X</span>
             
@@ -77,6 +81,8 @@
 
     function submitForm(event) {
 
+        let title      = document.getElementById("project_title_input").value;
+        let description= document.getElementById("project_description_input").value;
         let step_x_deg = document.getElementById("step_size_x_slider").value;
         let step_y_deg = document.getElementById("step_size_y_slider").value;
         let measurements_per_step = document.getElementById("measurements_per_step_slider").value;
@@ -87,7 +93,7 @@
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: "step_x_deg="+step_x_deg + "&step_y_deg="+step_y_deg + "&measurements_per_step="+measurements_per_step
+            body: "project_title="+ title + "&project_description="+description + "&step_x_deg="+step_x_deg + "&step_y_deg="+step_y_deg + "&measurements_per_step="+measurements_per_step
         })
 
         event.preventDefault();

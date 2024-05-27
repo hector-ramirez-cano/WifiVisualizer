@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use sqlx::{Pool, MySql, Error, MySqlPool};
-use crate::model::types;
+use crate::{internal, model::types};
 
 use super::types::Project;
 
@@ -83,4 +85,59 @@ pub async fn get_project_list(user: types::User) -> Option<Vec<types::Project>> 
         .ok()?;
     
     Some(project_list)
+}
+
+pub async fn new_project(user: types::User, title: String, description: String) -> Result<types::Project, sqlx::Error> {
+    let connection = connect().await;
+
+    match connection {
+        Err(err) => {
+            eprintln!("[ERROR]Cannot connect to Database [{}]", err.to_string());
+            Err(err)
+        },
+        Ok(pool) => {
+            sqlx::query("INSERT INTO Projects(project_title, project_description, in_capture, creator_user_id, image_id, project_data) VALUES (?, ?, ?, ?, ?, ?);")
+                .bind(title)
+                .bind(description)
+                .bind(true)
+                .bind(user.get_internal_id())
+                .bind(1)  // TODO: Update with actual image id
+                .bind("{}")
+                .execute(&pool)
+                .await?;
+
+            let project : types::Project = 
+                sqlx::query_as("SELECT * FROM Projects WHERE creator_user_id = ? ORDER BY project_id LIMIT 1")
+                .bind(user.get_internal_id())
+                .fetch_one(&pool)
+                .await?;
+        
+
+            Ok(project)
+        }
+    }
+}
+
+type ProjectRecords = HashMap<internal::frame_type::Position , Vec<internal::frame_type::Record>>;
+type ProjectSSIDs   = HashMap<internal::frame_type::NetworkId, Vec<internal::frame_type::SSID  >>;
+type ProjectBSSIDs  = HashMap<internal::frame_type::NetworkId, Vec<internal::frame_type::BSSID >>;
+pub async fn update_project(user: types::User, project: types::Project, contents: sqlx::types::Json<(ProjectRecords, ProjectSSIDs, ProjectBSSIDs)>) -> Result<(), sqlx::Error> {
+    let connection = connect().await;
+
+    match connection {
+        Err(err) => {
+            eprintln!("[ERROR]Cannot connect to Database [{}]", err.to_string());
+            Err(err)
+        },
+        Ok(pool) => {
+            sqlx::query("UPDATE Projects SET project_data = ? WHERE project_id = ?")
+            .bind(contents)
+            .bind(project.project_id())
+            .execute(&pool)
+            .await?;
+
+            Ok(())
+        },
+        
+    }
 }

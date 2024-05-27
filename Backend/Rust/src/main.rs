@@ -54,7 +54,7 @@ fn launch() -> _ {
         .attach(OAuth2::<controller::auth::Google>::fairing("google"));
 
     thread::spawn( move || {
-        controller::esp32_backend::launch_esp32_backend(logger, rx_web, tx_esp)
+        controller::esp32_backend::launch_esp32_backend(logger, rx_web, tx_esp);
     } );
     
 

@@ -1,6 +1,6 @@
 
 // std crates
-use std::{io, thread};
+use std::io;
 
 // External crates
 use serial::prelude::*;
@@ -64,15 +64,16 @@ pub fn rx_frame<T: SerialPort>(frame_stack : &mut FrameStack, port: &mut T) -> R
 
 pub fn rx_frame_blocking<T: SerialPort>(frame_stack : &mut FrameStack, port: &mut T) -> Result<Frame, FrameError> {
 
-    loop {
-        match rx_frame(frame_stack, port) {
-            Ok (frame)  => return Ok(frame),
-            Err(e) => {
-                println!("[INFO ]Failed to read with error '{e:?}', retrying in 500ms...");
-                thread::sleep(Duration::from_millis(500));
-            }
+    
+    match rx_frame(frame_stack, port) {
+        Ok (frame)  => return Ok(frame),
+        Err(e) => {
+            println!("[INFO ]Failed to read with error '{e:?}'");
+            return Err(e)
+            //thread::sleep(Duration::from_millis(500));
         }
     }
+
 }
 
 pub fn rx_frame_blocking_expect<T: SerialPort>(frame_stack : &mut FrameStack, port: &mut T, expected_cmd_code : u8) -> Result<Frame, FrameError> {

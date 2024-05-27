@@ -1,6 +1,6 @@
 #[derive(PartialEq)]
 pub enum Message {
-    StartCapture,
+    StartCapture(crate::model::types::Project),
     BackendReady(bool),
 
     BackendStatusRequest,

@@ -83,25 +83,28 @@
                 // choosing of placeholder image depending on status
                 let image_source = "/public/res/raster/";
                 let item_class = "project_item clickable ";
-                let name = project["name"];
+                let name = project["project_title"];
+                let description = project["project_description"]
 
-                let status = project["status"];
-                if (status === "in capture") {
+                
+                let status = project["in_capture"];
+                if (status === true) {
                     image_source += "projectCoverCapturePlaceholder.png";
                     item_class += " in_capture";
                     name += " (En captura)"
                 }
-                else if (status === "done") {
+                else if (status === false) {
                     image_source += "projectCoverPlaceholder.png";
                 }
                 
-
+                
+                console.log(description);
                 let parent = withAttributes(document.createElement("div"), {"class": item_class});
-                let image  = withAttributes(document.createElement("img"), {"class": "placeholder_project_image", "alt": "preview", "src": image_source, "title": project["name"] + ": " + project["description"]});
-                let title  = withAttributes(document.createElement("p"  ), {"class": "project_title", "title": name});
-                let date   = withAttributes(document.createElement("p"  ), {"class": "project_date"});
+                let image  = withAttributes(document.createElement("img"), {"class": "placeholder_project_image", "alt": "preview", "src": image_source, "title": name + ": " + description});
+                let title  = withAttributes(document.createElement("p"  ), {"class": "project_title", "title":  name});
+                let date   = withAttributes(document.createElement("p"  ), {"class": "project_date"}); // TODO: Fix Date
 
-                title.innerHTML = project["name"];
+                title.innerHTML = name;
                 date.innerHTML  = project["date"];
 
                 appendChildren(parent, [image, title, date])

@@ -2,19 +2,22 @@ use std::str::{from_utf8, FromStr};
 use std::result::Result;
 use std::collections::VecDeque;
 use rocket::serde::json;
+use serde::Serialize;
 use crate::internal::utils::*;
+
+extern crate rocket;
 
 static CRC_16 : crc::Crc<u16> = crc::Crc::<u16>::new(&crc::CRC_16_MODBUS);
 pub const FRAME_HEADER_SIZE: usize = 6;
 pub const CHECKSUM_SIZE: usize = 2;
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub struct BSSID {
     bytes: [u8; 6]
 }
 
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub struct SSID {
     name: String
 }
@@ -25,23 +28,23 @@ pub struct Checksum {
     checksum: u16
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub struct RSSI {
     strength: i8
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Hash, Eq, Serialize)]
 pub struct Position {
     pitch: u32,
     yaw: u32,
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Hash, Eq, Serialize)]
 pub struct NetworkId {
     id: u32
 }
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub struct Record {
     internal_id: NetworkId,
     rssi       : RSSI
@@ -150,6 +153,10 @@ impl Default for FrameStack {
 }
 
 impl BSSID {
+    pub fn new(bytes: [u8; 6]) -> Self {
+        Self { bytes }
+    }
+    
     fn parse(bytes: &[u8]) -> Result<BSSID, FrameError> {
         if bytes.len() < 6 {
             return Err(FrameError::NotEnoughBytes);
@@ -169,6 +176,10 @@ impl BSSID {
 }
 
 impl SSID {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+    
     pub fn parse(bytes: &[u8]) -> Result<SSID, FrameError> {
         let op = "INVALID_UTF-8";
         let name : String = from_utf8(bytes).unwrap_or(op).to_string();

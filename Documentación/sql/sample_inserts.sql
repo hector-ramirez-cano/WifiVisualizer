@@ -10,3 +10,8 @@ INSERT INTO Users(OAuth_provider_id, OAuth_user_id) values (2, "2152622323597126
 
 
 SELECT * FROM Users;
+
+SELECT * FROM Projects;
+
+-- INSERT INTO Image(data) values (0x00)
+SELECT * From Image

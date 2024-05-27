@@ -11,3 +11,5 @@ crc           = "3.2.1"
 rocket        = { version = "0.5.0", features = ["json"] }
 rocket_oauth2 = "0.5.0"
 sqlx          = { version = "0.7.4", features = ["mysql", "macros", "runtime-async-std"] }
+serde         = "1.0.203"
+serde_json    = { version = "1.0.0", features = ["raw_value"]}
