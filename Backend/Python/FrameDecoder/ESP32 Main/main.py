@@ -27,7 +27,7 @@ from frame_types import Result_Err
 # Constantes
 V_GEAR_RATIO = 8.0 / 1.0
 H_GEAR_RATIO = 8.0 / 1.0
-VERTICAL_ANGLE_RANGE   = (10.0, 90.0)
+VERTICAL_ANGLE_RANGE   = (10.0, 80.0)
 HORIZONTAL_ANGLE_RANGE = (0.0 , 360.0)
 
 # Pines de conexión
@@ -68,13 +68,18 @@ def onPositionChange(state: State, old_pitch, old_yaw):
         delta_pitch = state.position.pitch - old_pitch
         delta_yaw   = state.position.yaw   - old_yaw
         
-        sign_pitch  = int(math.copysign(1, delta_pitch))
-        sign_yaw    = int(math.copysign(1, delta_yaw))
+        log(LOGGING_LEVEL_VERBOSE, f"new_pitch = {Position.raw_as_deg(state.position.pitch)}, old_pitch={Position.raw_as_deg(old_pitch)}")
+        log(LOGGING_LEVEL_VERBOSE, f"new_yaw   = {Position.raw_as_deg(state.position.yaw)}, old_yaw={Position.raw_as_deg(old_yaw)}")
+        
+        sign_pitch  = -int(math.copysign(1, delta_pitch))
+        sign_yaw    = -int(math.copysign(1, delta_yaw))
+        
+        log(LOGGING_LEVEL_VERBOSE, f"delta_pitch={delta_pitch} sign={sign_pitch}, delta_yaw={delta_yaw} sign={sign_yaw}")
         
         delta_pitch = Position.raw_as_deg(abs(delta_pitch))
         delta_yaw   = Position.raw_as_deg(abs(delta_yaw  ))
         
-        log(LOGGING_LEVEL_VERBOSE, f"delta_pitch={delta_pitch}, delta_yaw={delta_yaw}")
+        
     
     else:
         log(LOGGING_LEVEL_INFO, "Measuring current pitch and yaw...")
@@ -90,14 +95,24 @@ def onPositionChange(state: State, old_pitch, old_yaw):
             time.sleep_ms(5)
             
         avg_pitch = pitch / sz
-        avg_yaw   = yaw   / sz
+        avg_yaw   = 180  + 20 - yaw   / sz # relative to 180 degs, because of orientation on board. -23 
         req_pitch = state.position.pitch_as_deg()
         req_yaw   = state.position.yaw_as_deg()
         log(LOGGING_LEVEL_INFO, f"measured pitch = {avg_pitch}°, requeuested pitch = {req_pitch}")
         log(LOGGING_LEVEL_INFO, f"measured yaw   = {avg_yaw}°, requeuested yaw = {req_yaw}")
         
-        delta_pitch = req_pitch - avg_pitch
-        delta_yaw   = req_yaw   - avg_yaw
+        # Calculate how much we should turn in the x axis(pitch)
+        delta_pitch = avg_pitch - req_pitch
+        
+        delta_yaw1  = req_yaw         - avg_yaw # Clockwise
+        delta_yaw2  = (360 + req_yaw) - avg_yaw # Anti-clockwise
+        if abs(delta_yaw1) < abs(delta_yaw2):   # Can't simplify to single assignment, as sign must be preserved
+            delta_yaw = delta_yaw1
+        else:
+            delta_yaw = delta_yaw2
+
+        log(LOGGING_LEVEL_VERBOSE, f"delta yaw cw = {delta_yaw1}°. delta yaw ccw = {delta_yaw2}°, delta yaw = {delta_yaw}")
+        
         state.known_position = True
         
 

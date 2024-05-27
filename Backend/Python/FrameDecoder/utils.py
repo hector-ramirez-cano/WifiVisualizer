@@ -44,4 +44,20 @@ def angle_from_gravity(acc):
     theta = math.acos(acc_g)
     theta = math.degrees(theta)
     return 90 - theta
+
+def deg_clamp(val):
+    if val > 360:
+        val = val - (val // 360)*360
+    elif val < 0:
+        val = 360 + val + (abs(val) // 360)*360
     
+    return val
+
+
+def clamp(val, lower, upper):
+    if val < lower:
+        val = lower
+    elif val > upper:
+        val = upper
+    
+    return val

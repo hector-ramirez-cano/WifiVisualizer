@@ -16,7 +16,7 @@ pub fn proc_tx_reset<T: SerialPort>(port: &mut T, frame_stack: &mut FrameStack) 
     let frame = Frame::from_cmd(
         Cmd::SetParams {
             position: Position::from_degrees(10f32, 0f32)?,
-            step_size: StepSize::from_degrees(80f32, 180f32)?,
+            step_size: StepSize::from_degrees(20f32, 20f32)?,
             measurements_per_step: 1
         }, 
         frame_stack.curr_id()

@@ -86,12 +86,12 @@ pub fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiv
 
     assert_eq!(Ok(()), proc_tx_reset    (&mut conn, &mut frame_stack));
     loop {
+        handle_thread_msg(&logger, &rx_thread, &tx_thread, true);
         let frame = rx_frame_blocking(&mut frame_stack,&mut conn).unwrap();
-        println!("{frame:?}");
 
         match frame.get_cmd() {
             Cmd::EndOfTransmission => break,
-            Cmd::RequestAck   { frame_id: _ } => proc_rx_request_ack(&mut conn, &mut frame_stack, logger.clone()).unwrap(),
+            Cmd::RequestAck   { frame_id: _  } => proc_rx_request_ack(&mut conn, &mut frame_stack, logger.clone()).unwrap(),
             Cmd::TransmitLogs { logs } => { proc_rx_logs(&mut logger.clone(), &logs); },
             _ => {}
         }
