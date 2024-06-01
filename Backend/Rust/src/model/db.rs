@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use rocket::serde::json;
 use sqlx::{Pool, MySql, Error, MySqlPool};
 use crate::{internal, model::types};
 
@@ -121,7 +122,7 @@ pub async fn new_project(user: types::User, title: String, description: String) 
 type ProjectRecords = HashMap<internal::frame_type::Position , Vec<internal::frame_type::Record>>;
 type ProjectSSIDs   = HashMap<internal::frame_type::NetworkId, Vec<internal::frame_type::SSID  >>;
 type ProjectBSSIDs  = HashMap<internal::frame_type::NetworkId, Vec<internal::frame_type::BSSID >>;
-pub async fn update_project(user: types::User, project: types::Project, contents: sqlx::types::Json<(ProjectRecords, ProjectSSIDs, ProjectBSSIDs)>) -> Result<(), sqlx::Error> {
+pub async fn update_project(project: types::Project, contents: json::Value) -> Result<(), sqlx::Error> {
     let connection = connect().await;
 
     match connection {

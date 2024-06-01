@@ -11,19 +11,19 @@ function resizeCanvasToDisplaySize(canvas) {
     // Lookup the size the browser is displaying the canvas in CSS pixels.
     const displayWidth  = canvas.clientWidth;
     const displayHeight = canvas.clientHeight;
-   
+
     // Check if the canvas is not the same size.
-    const needResize = canvas.width  !== displayWidth ||
-                       canvas.height !== displayHeight;
-   
+    const needResize = (canvas.width+1)  !== displayWidth ||
+                        canvas.height !== displayHeight;
+
     if (needResize) {
       // Make the canvas the same size
-      canvas.width  = displayWidth;
-      canvas.height = displayHeight;
+        canvas.width  = displayWidth;
+        canvas.height = displayHeight;
     }
-   
+
     return needResize;
-  }
+}
 
 main();
 
@@ -100,7 +100,7 @@ function main() {
         },
     };
 
-    const s = sphere(30);
+    const s = sphere(70);
 
     // Here's where we call the routine that builds all the
     // objects we'll be drawing.

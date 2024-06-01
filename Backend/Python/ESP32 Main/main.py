@@ -25,10 +25,11 @@ from frame_types import Result_Err
 
 
 # Constantes
-V_GEAR_RATIO = 8.0 / 1.0
-H_GEAR_RATIO = 8.0 / 1.0
+V_GEAR_RATIO = 36.0 / 6.0
+H_GEAR_RATIO = 36.0 / 6.0
 VERTICAL_ANGLE_RANGE   = (10.0, 80.0)
 HORIZONTAL_ANGLE_RANGE = (0.0 , 360.0)
+MAGNET_COMPENSATION = +70 +90
 
 # Pines de conexión
 UART2_RX_PIN  = 16
@@ -95,7 +96,7 @@ def onPositionChange(state: State, old_pitch, old_yaw):
             time.sleep_ms(5)
             
         avg_pitch = pitch / sz
-        avg_yaw   = 180  + 20 - yaw   / sz # relative to 180 degs, because of orientation on board. -23 
+        avg_yaw   = MAGNET_COMPENSATION - yaw   / sz # relative to 180 degs, because of orientation on board. -23 
         req_pitch = state.position.pitch_as_deg()
         req_yaw   = state.position.yaw_as_deg()
         log(LOGGING_LEVEL_INFO, f"measured pitch = {avg_pitch}°, requeuested pitch = {req_pitch}")

@@ -3,6 +3,9 @@ use std::collections::HashMap;
 use std::{thread, time::Duration};
 use std::sync::{mpsc, Arc, Mutex};
 
+use rocket::serde::json;
+use rocket::tokio;
+use serde_json::json;
 use serial::unix::TTYPort;
 
 // own imports
@@ -52,17 +55,18 @@ fn terminate_esp32_backend(logger : Arc<Mutex<Logger>>, tx_thread: ThreadSender)
     }
 }
 
-fn capture_project_data(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver, tx_thread: &ThreadSender, project: model::types::Project, frame_stack: &mut FrameStack, conn: &mut TTYPort) {
+fn capture_project_data(logger : &Arc<Mutex<Logger>>, project: model::types::Project, frame_stack: FrameStack, conn: TTYPort)  -> Result<(), sqlx::Error>{
     let mut ssids       : HashMap<NetworkId, SSID       > = HashMap::new();
     let mut bssids      : HashMap<NetworkId, BSSID      > = HashMap::new();
     let mut rssi_records: HashMap<Position , Vec<Record>> = HashMap::new();
 
-    loop {
-        // If any messages comes from the web thread, handle them now
-        handle_thread_msg(&logger, &rx_thread, &tx_thread, true);
+    let mut frame_stack = frame_stack;
+    let mut conn = conn;
 
+    loop {
+    
         // Rx a frame or log the error and loop back
-        let frame = match rx_frame_blocking(frame_stack,conn) {
+        let frame = match rx_frame_blocking(&mut frame_stack,&mut conn) {
             Ok(frame) => frame,
             Err(e) => {
                     if let Ok(mut handle) = logger.lock() {
@@ -78,7 +82,7 @@ fn capture_project_data(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver
             Cmd::EndOfTransmission => break,
             Cmd::AddBSSID     { id, bssid } => { bssids.insert(id.clone(), bssid.clone()); },
             Cmd::AddSSID      { id, ssid   } => { ssids.insert (id.clone(), ssid.clone() ); }
-            Cmd::RequestAck   { frame_id: _  } => proc_rx_request_ack(conn, frame_stack, logger.clone()).unwrap(),
+            Cmd::RequestAck   { frame_id: _  } => proc_rx_request_ack(&mut conn, &mut frame_stack, logger.clone()).unwrap(),
             Cmd::TransmitLogs { logs } => { proc_rx_logs(&mut logger.clone(), &logs); },
             Cmd::RecordRSSI   { position, record_count: _, records } => { 
                 // add records to tally
@@ -92,9 +96,16 @@ fn capture_project_data(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver
         }
     }
 
-    
+    let contents = json::json!({
+        "records": rssi_records,
+        "ssids"  : ssids,
+        "bssids" : bssids
+    });
 
 
+    // db::update_project(project, contents).await?;
+
+    Ok(())
 }
 
 fn acquire_port(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver, tx_thread: &ThreadSender, port_name: &str) -> TTYPort {
@@ -119,6 +130,8 @@ fn acquire_port(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver, tx_thr
 
 fn await_capture_order(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver, tx_thread: &ThreadSender) -> model::types::Project {
     loop {
+        thread::sleep(Duration::from_millis(300));
+
         // Process status requests
         let msg = handle_thread_msg(&logger, &rx_thread, &tx_thread, false);    
 
@@ -131,7 +144,7 @@ fn await_capture_order(logger : &Arc<Mutex<Logger>>, rx_thread: &ThreadReceiver,
     }
 }
 
-pub fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, tx_thread: ThreadSender) { 
+pub fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiver, tx_thread: ThreadSender)-> Result<(), sqlx::Error>{ 
     let config = crate::internal::config::load_config().unwrap_or_default();
 
     let port_name = config.esp32_port();
@@ -147,7 +160,13 @@ pub fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiv
     // TODO: Remove assert in favor of error handling
     // Perform handshake with ESP32, we're ready to start the transmission
     let mut frame_stack = FrameStack::new();
-    assert_eq!(Ok(()), proc_tx_handshake(&mut conn, &mut frame_stack, logger.clone()));
+    let mut result = proc_tx_handshake(&mut conn, &mut frame_stack, logger.clone());
+    while let Err(e) = result {
+        if let Ok(mut handle) = logger.lock() {
+            handle.log(Severity::INFO, &format!("Error on handshake = {:?}", e));
+        }
+        result = proc_tx_handshake(&mut conn, &mut frame_stack, logger.clone());
+    }
 
     // log it lul
     if let Ok(mut handle) = logger.lock() {
@@ -159,9 +178,22 @@ pub fn launch_esp32_backend(logger : Arc<Mutex<Logger>>, rx_thread: ThreadReceiv
     let user = await_capture_order(&logger, &rx_thread, &tx_thread);
 
     // Perform the reset of the connection. After its completion, the ESP32 will begin capture
-    assert_eq!(Ok(()), proc_tx_reset    (&mut conn, &mut frame_stack));
+    let mut result = proc_tx_reset    (&mut conn, &mut frame_stack);
+    while let Err(e) = result {
+        if let Ok(mut handle) = logger.lock() {
+            handle.log(Severity::INFO, &format!("Error on reset = {:?}", e));
+        }
+        result = proc_tx_reset    (&mut conn, &mut frame_stack);
+    }
 
-    capture_project_data(&logger, &rx_thread, &tx_thread, user, &mut frame_stack, &mut conn);
+
+    if let Ok(mut handle) = logger.lock() {
+        handle.log(Severity::INFO, &format!("Starting capture proc"));
+    }
+    let _ = capture_project_data(&logger, user, frame_stack, conn);
+    
 
     terminate_esp32_backend(logger, tx_thread);
+
+    Ok(())
 }

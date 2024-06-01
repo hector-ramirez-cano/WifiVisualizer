@@ -24,8 +24,9 @@ export function sphere(density){
 
 	//colors
 	const colors = [];
-	for(let i = 0; i < positions.length; i++){
-		colors.push([1, 1, 0, 1]);
+	for(let i = 0; i < positions.length; i++) {
+		let random = Math.random() * 0.8
+		colors.push([1-random*0.7, 1-random, 0.4, 1]);
 	}
 
 	//triangles

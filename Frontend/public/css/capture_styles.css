@@ -121,6 +121,7 @@ body {
     flex-direction: column-reverse;
 
     max-height: 75vh;
+    max-width: 50%;
 
     margin: 1em;
     padding: 1em;
